@@ -31,7 +31,7 @@ diameter = 8.2 * 0.95  # meter (diameter * clear aperture)
 ld = wavelength / diameter  # radians
 # ld = np.degrees(ld) * 3600 * 1000 # milli arcsec
 
-oversampling_factor = 10
+oversampling_factor = 100
 
 # pixels size in mas
 rad_pix = np.radians(mas_pix / 1000 / 3600) / oversampling_factor
@@ -62,7 +62,7 @@ focal_grid = hp.make_uniform_grid(
 propagator = hp.FraunhoferPropagator(pupil_grid, focal_grid)
 
 # generating Lyot stop using the erosion of the aperture
-cent_obs = hp.make_obstructed_circular_aperture(diameter * 0.8, 0.6)(pupil_grid)
+cent_obs = hp.make_obstructed_circular_aperture(diameter * 0.8, 0.5)(pupil_grid)
 kernel = np.ones((10, 10), np.uint8)
 lyot_mask = cv2.erode(aperture, kernel).ravel() * cent_obs
 
@@ -70,7 +70,12 @@ lyot_mask = cv2.erode(aperture, kernel).ravel() * cent_obs
 aperture = hp.Field(aperture.ravel(), pupil_grid)
 
 # fourier transform of aperture
-wavefront = hp.Wavefront(aperture, wavelength=wavelength)
+rms_err = 1  # rad
+i = np.random.uniform(0, 2* np.pi)
+tilt_x = rms_err * np.cos(i)
+tilt_y = rms_err * np.sin(i)
+ap = aperture * np.exp(1j * (tilt_x * pupil_grid.x + tilt_y * pupil_grid.y) * 2 * np.pi / diameter)
+wavefront = hp.Wavefront(ap, wavelength=wavelength)
 img_ref = propagator(wavefront)
 
 # ----------------------------------------------------------------------
@@ -110,7 +115,7 @@ axes[0, 1].format(title=f"Lyot stop", xlabel="x [m]", ylabel="y [m]")
 
 m = hp.imshow_field(wavefront.phase, ax=axes[1, 0], vmin=-np.pi, vmax=np.pi)
 axes[1, 0].format(title="wavefront phase", xlabel="x [m]", ylabel="y [m]")
-axes[1, 0].colorbar(m, loc="b")
+axes[1, 0].colorbar(m, loc="b", label="rad")
 
 hp.imshow_field(focal_plane_mask, ax=axes[1, 1], cmap="gray")
 focal_ticks = axes[1, 1].get_xticks()
