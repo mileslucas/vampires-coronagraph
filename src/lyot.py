@@ -1,182 +1,107 @@
-import astropy.units as u
 import cv2
 import hcipy as hp
 import numpy as np
-import proplot as pro
-from astropy.io import fits
-from scipy import ndimage
-from tqdm import tqdm
 
-from paths import datadir, figuredir
+from config import *
 
-# ----------------------------------------------------------------------
-# Plotting defaults
-# ----------------------------------------------------------------------
-pro.use_style("ggplot")
-pro.rc["image.cmap"] = "inferno"
-pro.rc["grid"] = False
-
-
-# ----------------------------------------------------------------------
-# parameters
-# ----------------------------------------------------------------------
-aperture = fits.getdata(datadir("scexao_pupil.fits"))
-# wavelength = 1.6 * u.micron  # meter
-wavelength = 7e-7  # meter
-mas_pix = 16.2  # milli arcsec per pixel
-# diameter = 8.2 * 0.95 * u.meter  # meter (diameter * clear aperture)
-diameter = 8.2 * 0.95  # meter (diameter * clear aperture)
-
-# lambda / diameter
-ld = wavelength / diameter  # radians
-# ld = np.degrees(ld) * 3600 * 1000 # milli arcsec
-
-oversampling_factor = 100
-
-# pixels size in mas
-rad_pix = np.radians(mas_pix / 1000 / 3600) / oversampling_factor
-
-# number of pixels along one axis in the pupil and focal planes
-Npix_pup = aperture.shape[0]
-zoom_factor = 4
-npix = 128 / zoom_factor
-Npix_foc = npix * oversampling_factor
 
 # ----------------------------------------------------------------------
 # setting grids, mode basis, propagators, etc
 # ----------------------------------------------------------------------
-# rotating the aperture
-rotation_angle = -7
-aperture = ndimage.rotate(aperture, rotation_angle, reshape=False)
-threshold = 0.8
-aperture[aperture < threshold] = 0
-aperture[aperture >= threshold] = 1
 
-# generating the grids
-pupil_grid = hp.make_pupil_grid(Npix_pup, diameter=diameter)
-focal_grid = hp.make_uniform_grid(
-    [Npix_foc, Npix_foc], [Npix_foc * rad_pix, Npix_foc * rad_pix]
-)
 
-# generating the propagator
-propagator = hp.FraunhoferPropagator(pupil_grid, focal_grid)
+def create_grids(wavelength):
+    # generating the grids
+    pupil_grid = hp.make_pupil_grid(APERTURE.shape, diameter=APERTURE_DIAMETER)
+    Δx = wavelength * F_RATIO
+    # q = Δx / VAMPIRES_PIXEL_PITCH
+    q = 4
+    focal_grid = hp.make_focal_grid(q, num_airy=16, spatial_resolution=Δx)
+    return pupil_grid, focal_grid
 
-# generating Lyot stop using the erosion of the aperture
-cent_obs = hp.make_obstructed_circular_aperture(diameter * 0.8, 0.5)(pupil_grid)
-kernel = np.ones((10, 10), np.uint8)
-lyot_mask = cv2.erode(aperture, kernel).ravel() * cent_obs
 
-# rotating the aperture to the correct rotation and making it a field
-aperture = hp.Field(aperture.ravel(), pupil_grid)
+def eroded_lyot_stop(pupil_grid, outer_scale=0.8, inner_scale=0.5, erosion_size=10):
+    """
+    Lyot stop with design generated from Subaru aperture using an erosion kernel
 
-# fourier transform of aperture
-rms_err = 1  # rad
-i = np.random.uniform(0, 2* np.pi)
-tilt_x = rms_err * np.cos(i)
-tilt_y = rms_err * np.sin(i)
-ap = aperture * np.exp(1j * (tilt_x * pupil_grid.x + tilt_y * pupil_grid.y) * 2 * np.pi / diameter)
-wavefront = hp.Wavefront(ap, wavelength=wavelength)
-img_ref = propagator(wavefront)
+    Parameters
+    ----------
+    outer_scale : float, optional
+        The outer scale of the circular stop, in units of diameter. Default is 0.8.
+    inner_scale : float, optional
+        The inner scale of the circular stop, in units of diameter. Default is 0.5.
+    erosion_size : int, optional
+        The size of the erosion kernel. Default is 10.
+
+    Returns
+    -------
+    lyot_mask : ndarray
+    """
+    cent_obs = hp.make_obstructed_circular_aperture(
+        APERTURE_DIAMETER * outer_scale, inner_scale
+    )(pupil_grid)
+    kernel = np.ones((erosion_size, erosion_size), np.uint8)
+    stop_mask = cv2.erode(APERTURE.astype("f8"), kernel).ravel() * cent_obs
+    return hp.Apodizer(stop_mask)
+
+
+def make_lyot_stop(pupil_grid, outer_scale=0.9):
+    """
+    Classic Lyot stop with empty hole
+
+    Parameters
+    ----------
+    outer_scale : float, optional
+        The outer scale of the circular stop, in units of diameter. Default is 0.8.
+
+    Returns
+    -------
+    lyot_mask : ndarray
+    """
+    stop_mask = hp.circular_aperture(outer_scale * APERTURE_DIAMETER)(pupil_grid)
+    return hp.Apodizer(stop_mask)
+
 
 # ----------------------------------------------------------------------
 # Coronagraph part
 # ----------------------------------------------------------------------
-# generating the focal plane mask
-fpm_rad = 5 * ld  # rad
-focal_plane_mask = hp.circular_aperture(fpm_rad)(focal_grid)
-focal_plane_mask = np.abs(focal_plane_mask - 1)
-lyot_stop = hp.Apodizer(lyot_mask)
-lyot_reflect = hp.Apodizer(np.abs(lyot_mask - 1))
-
-# Choose the type of Coronagraph
-coro = hp.LyotCoronagraph(pupil_grid, focal_plane_mask=focal_plane_mask)
-
-lyot_plane = coro(wavefront)
-post_lyot_plane = lyot_stop(lyot_plane)
-img = propagator(post_lyot_plane)
-
-reflected = lyot_reflect(lyot_plane)
-reformed = propagator(reflected)
 
 
-# ----------------------------------------------------------------------
-# Plotting
-# ----------------------------------------------------------------------
-fig, axes = pro.subplots(nrows=2, ncols=4, share=0)
+def focal_plane_mask(focal_grid, size):
+    """
+    Generate focal plane mask using a uniform disk
 
-# wavefront
-m = hp.imshow_field(wavefront.amplitude, ax=axes[0, 0])
-axes[0, 0].colorbar(m, loc="t")
-axes[0, 0].format(title="wavefront amplitude", xlabel="x [m]", ylabel="y [m]")
-hp.imshow_field(lyot_mask, ax=axes[0, 1], cmap="gray")
-axes[0, 1].format(title=f"Lyot stop", xlabel="x [m]", ylabel="y [m]")
+    Parameters
+    ----------
+    size : float
+        Angular size of the focal plane mask in radians
 
-# coronagraph mask and stop
-
-m = hp.imshow_field(wavefront.phase, ax=axes[1, 0], vmin=-np.pi, vmax=np.pi)
-axes[1, 0].format(title="wavefront phase", xlabel="x [m]", ylabel="y [m]")
-axes[1, 0].colorbar(m, loc="b", label="rad")
-
-hp.imshow_field(focal_plane_mask, ax=axes[1, 1], cmap="gray")
-focal_ticks = axes[1, 1].get_xticks()
-focal_ticklabs = [f"{v:.1f}" for v in np.degrees(focal_ticks) * 3600]
-axes[1, 1].format(
-    title=f"Lyot mask ({fpm_rad / ld:.1f} $\lambda$/D)",
-    # xlabel="$\lambda$/D",
-    # ylabel="$\lambda$/D",
-    xlabel="arcsec",
-    ylabel="arcsec",
-    xticks=focal_ticks,
-    xticklabels=focal_ticklabs,
-    yticks=focal_ticks,
-    yticklabels=focal_ticklabs,
-)
-axes[1, 1].grid(True, color="k", alpha=0.2)
+    Returns
+    -------
+    focal_plane_mask : ndarray
+    """
+    # convert size to meters
+    size *= 2 * FOCAL_LENGTH
+    # generate small circular hole
+    focal_plane_mask = hp.circular_aperture(size)(focal_grid)
+    # invert hole to become obscuration
+    return np.abs(focal_plane_mask - 1)
 
 
+def make_coronagraph(pupil_grid, focal_grid, fpm_size):
+    fpm = focal_plane_mask(focal_grid, fpm_size)
+    coronagraph = hp.LyotCoronagraph(pupil_grid, focal_plane_mask=fpm)
+    return coronagraph
 
-# post-coronagraphic focal plane
-m = hp.imshow_field(lyot_plane.intensity, ax=axes[0, 2])
-axes[0, 2].format(title="Lyot plane", xlabel="x [m]", ylabel="y [m]")
-axes[0, 2].colorbar(m, loc="t")
 
-m = hp.imshow_field(post_lyot_plane.intensity, ax=axes[0, 3])
-axes[0, 3].format(title="post Lyot plane", xlabel="x [m]", ylabel="y [m]")
-axes[0, 3].colorbar(m, loc="t")
-
-# unobstructed PSF & contrast
-psf_norm = np.log10(img_ref.intensity / img_ref.intensity.max())
-m = hp.imshow_field(psf_norm, vmin=-8, ax=axes[1, 2])
-axes[1, 2].format(
-    title="unobstructed PSF",
-    # xlabel="$\lambda$/D",
-    # ylabel="$\lambda$/D",
-    xlabel="arcsec",
-    ylabel="arcsec",
-    xticks=focal_ticks,
-    xticklabels=focal_ticklabs,
-    yticks=focal_ticks,
-    yticklabels=focal_ticklabs,
-)
-axes[1, 2].colorbar(m, loc="b")
-
-contrast = np.log10(img_ref.intensity.max() / img.intensity)
-contrast[~focal_plane_mask.astype(bool)] = np.nan
-m = hp.imshow_field(contrast, ax=axes[1, 3], cmap="inferno_r", vmax=10, vmin=0)
-axes[1, 3].format(
-    title="raw contrast",
-    # xlabel="$\lambda$/D",
-    # ylabel="$\lambda$/D",
-    xlabel="arcsec",
-    ylabel="arcsec",
-    xticks=focal_ticks,
-    xticklabels=focal_ticklabs,
-    yticks=focal_ticks,
-    yticklabels=focal_ticklabs,
-)
-axes[1, 3].colorbar(m, loc="b", label="log10(max(PSF) / img)")
-
-fig.save(figuredir("lyot.pdf"))
-
-# ----------------------------------------------------------------------
-# Contrast
+def make_wavefront(pupil_grid, wavelength, tip_tilt):
+    # fourier transform of aperture
+    phase = (
+        (tip_tilt[0] * pupil_grid.x + tip_tilt[1] * pupil_grid.y)
+        * 2
+        * np.pi
+        / wavelength
+    )
+    ap = hp.Field(APERTURE, pupil_grid).ravel() * np.exp(1j * phase)
+    wavefront = hp.Wavefront(ap, wavelength=wavelength)
+    return wavefront

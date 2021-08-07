@@ -14,6 +14,7 @@ proplot = "^0.7.0"
 tqdm = "^4.62.0"
 opencv-python = "^4.5.3"
 scipy = "^1.7.0"
+PyPDF2 = "^1.26.0"
 
 [tool.poetry.dev-dependencies]
 
