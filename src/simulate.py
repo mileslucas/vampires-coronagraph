@@ -65,7 +65,7 @@ def format_filename(fpm_size_ld, wavelength, lyot_type, **lyot_params):
                 "glass",
                 f"outer-{lyot_params['outer_scale']:.2f}",
                 f"inner-{lyot_params['inner_scale']:.2f}",
-                f"erosion-{lyot_params['erosion_size']:d}",
+                f"erosion-{lyot_params['erosion_size']:02d}",
             ]
         )
     return "_".join(tokens)
@@ -214,6 +214,8 @@ def simulate(
         psf_curves=psf_curves,
         img_curves=img_curves,
         weights=weights,
+        original_psf_curve = original_psf_mean,
+        original_coro_curve = original_coro_mean,
     )
     plot_attenuation_curves(
         radii,
@@ -243,13 +245,14 @@ def merge_pdfs(names, outname="lyot.pdf"):
 
 
 if __name__ == "__main__":
-    simulate(
-        tip_tilt_rms=7.0,
-        fpm_size_ld=2,
-        wavelength=750e-9,
-        lyot_type="glass",
-        outer_scale=0.9,
-        inner_scale=0.4,
-        erosion_size=5,
-        N_tiptilts=1000
-    )
+    for erosion_size in filter(lambda x: x % 2 == 1, range(3, 30)):
+        simulate(
+            tip_tilt_rms=7.0,
+            fpm_size_ld=2,
+            wavelength=750e-9,
+            lyot_type="glass",
+            outer_scale=0.95,
+            inner_scale=0.35,
+            erosion_size=erosion_size,
+            N_tiptilts=1000
+        )
