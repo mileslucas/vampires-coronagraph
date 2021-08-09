@@ -20,7 +20,7 @@ def create_grids(wavelength):
     return pupil_grid, focal_grid
 
 
-def eroded_lyot_stop(pupil_grid, outer_scale=0.8, inner_scale=0.5, erosion_size=10):
+def eroded_lyot_stop(pupil_grid, outer_scale, inner_scale, erosion_size):
     """
     Lyot stop with design generated from Subaru aperture using an erosion kernel
 
@@ -45,7 +45,7 @@ def eroded_lyot_stop(pupil_grid, outer_scale=0.8, inner_scale=0.5, erosion_size=
     return hp.Apodizer(stop_mask)
 
 
-def make_lyot_stop(pupil_grid, outer_scale=0.9):
+def make_lyot_stop(pupil_grid, outer_scale):
     """
     Classic Lyot stop with empty hole
 
@@ -83,14 +83,17 @@ def focal_plane_mask(focal_grid, size):
     # convert size to meters
     size *= 2 * FOCAL_LENGTH
     # generate small circular hole
-    focal_plane_mask = hp.circular_aperture(size)(focal_grid)
+    focal_plane_mask = hp.evaluate_supersampled(
+        hp.circular_aperture(size), focal_grid, 4
+    )
     # invert hole to become obscuration
     return np.abs(focal_plane_mask - 1)
 
 
-def make_coronagraph(pupil_grid, focal_grid, fpm_size):
+def make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop=None):
     fpm = focal_plane_mask(focal_grid, fpm_size)
-    coronagraph = hp.LyotCoronagraph(pupil_grid, focal_plane_mask=fpm)
+    size = fpm_size * 2 * FOCAL_LENGTH
+    coronagraph = hp.LyotCoronagraph(pupil_grid, fpm, lyot_stop=lyot_stop, focal_length=FOCAL_LENGTH)
     return coronagraph
 
 

@@ -26,13 +26,13 @@ def plot_lyot_mosaic(
     wavefront,
     wavefront_phase,
     focal_plane_mask,
+    psf_ref,
     masked_psf,
     lyot_stop,
     lyot_plane,
     post_lyot_plane,
-    psf_ref,
     psf,
-    original_psf,
+    bin_size,
     savename="lyot.pdf",
     fpm_size=None,
 ):
@@ -45,7 +45,7 @@ def plot_lyot_mosaic(
     axes[0].colorbar(m, loc="l")
     axes[0].format(title="wavefront intensity", xlabel="x [m]", ylabel="y [m]")
 
-    m = hp.imshow_field(wavefront_phase, ax=axes[1], cmap="Vlag")
+    m = hp.imshow_field(wavefront_phase * (wavefront > 0), ax=axes[1], cmap="Vlag")
     axes[1].format(title="wavefront phase", xlabel="x [m]", ylabel="y [m]")
     axes[1].colorbar(m, loc="l", label="rad")
 
@@ -118,13 +118,12 @@ def plot_lyot_mosaic(
     axes[8].colorbar(m, loc="r")
 
     rmax = psf_ref.grid.x.max() * np.degrees(OPTICAL_PLATE_SCALE) * 3600
-    bin_size = LAMBDA_D / OPTICAL_PLATE_SCALE / 2
     bins, psf_mean, _, _ = hp.radial_profile(psf_ref, bin_size)
     _, img_mean, _, _ = hp.radial_profile(psf, bin_size)
 
     radii = bins * np.degrees(OPTICAL_PLATE_SCALE) * 3600
-    axes[9].plot(radii, psf_mean, lw=2, label="PSF")
-    axes[9].plot(radii, img_mean, lw=2, label="post-coronagraphic")
+    axes[9].plot(radii, psf_mean / psf_mean.max(), lw=2, label="PSF")
+    axes[9].plot(radii, img_mean / psf_mean.max(), lw=2, label="post-coronagraphic")
     axes[9].format(
         title="attenuation curve",
         yscale="log",
@@ -136,7 +135,7 @@ def plot_lyot_mosaic(
     )
     ylim = axes[9].get_ylim()
     axes[9].vlines(fpm_size, *ylim, color="k", ls="--", alpha=0.5, label="FPM radius")
-    axes[9].set_ylim(ylim)
+    axes[9].set_ylim(ylim[0], 1)
     axes[9].legend(ncol=1)
 
     fig.save(figuredir(savename))
@@ -158,9 +157,15 @@ def plot_attenuation_curves(
     rmax,
     savename="attenuation_curve.pdf",
 ):
-    psf_mean_curve = np.average(psf_curves, weights=weights, axis=0)
-    img_mean_curve = np.average(img_curves, weights=weights, axis=0)
-    img_std_curve = np.sqrt(np.average((img_curves - img_mean_curve)**2, weights=weights, axis=0))
+    psfmax = psf_curve.max()
+    psf_mean_curve = np.average(psf_curves / psfmax, weights=weights, axis=0)
+    img_mean_curve = np.average(img_curves / psfmax, weights=weights, axis=0)
+    img_std_curve = np.sqrt(
+        np.average((img_curves / psfmax - img_mean_curve) ** 2, weights=weights, axis=0)
+    )
+    mask = (img_mean_curve - img_std_curve) < 0
+    std_hi = img_std_curve
+    std_lo = np.where(mask, 0, img_std_curve)
 
     layout = [[1, 3, 3], [2, 3, 3]]
     fig, axes = pro.subplots(layout, width="10in", height="6in", share=0)
@@ -192,18 +197,19 @@ def plot_attenuation_curves(
         yticks=focal_ticks,
         yticklabels=focal_ticklabs,
     )
-    fig.colorbar(m, loc="l")
+    fig.colorbar(m, loc="l", label="log10[image / max(PSF)]")
 
-    psfmax = psf_curve.max()
     axes[2].plot(radii, psf_curve / psfmax, lw=2, c="C3", label="PSF (no jitter)")
-    axes[2].plot(radii, psf_mean_curve / psfmax, lw=2, c="C0", label="PSF (jitter)")
-    axes[2].plot(radii, coro_curve / psfmax, lw=2, c="C5", label="post-coro. (no-jitter)")
+    axes[2].plot(radii, psf_mean_curve, lw=2, c="C0", label="PSF (jitter)")
+    axes[2].plot(
+        radii, coro_curve / psfmax, lw=2, c="C5", label="post-coro. (no jitter)"
+    )
     axes[2].plot(
         radii,
-        img_mean_curve / psfmax,
+        img_mean_curve,
         lw=2,
         c="C1",
-        fadedata=img_std_curve,
+        fadedata=(std_lo, std_hi),
         label="post-coro. (jitter)",
     )
     axes[2].format(
@@ -216,8 +222,9 @@ def plot_attenuation_curves(
         xlim=(0, rmax),
     )
     ylim = axes[2].get_ylim()
+    ylo = img_mean_curve[:np.argmax(radii > rmax)].min() / 3
     axes[2].vlines(fpm_size, *ylim, color="k", ls="--", alpha=0.3, label="FPM radius")
-    axes[2].set_ylim(ylim[0], 1)
+    axes[2].set_ylim(ylo, 1)
     axes[2].legend(ncol=1)
 
     fig.save(figuredir(savename))

@@ -72,11 +72,12 @@ six = "*"
 
 [[package]]
 name = "hcipy"
-version = "0.4.0"
+version = "0.4.1.dev73+g9ea4c9b"
 description = "A framework for performing optical propagation simulations, meant for high contrast imaging, in Python."
 category = "main"
 optional = false
 python-versions = "*"
+develop = false
 
 [package.dependencies]
 asdf = "*"
@@ -93,6 +94,12 @@ xxhash = "*"
 [package.extras]
 dev = ["pytest", "codecov", "coverage", "mpmath", "dill"]
 doc = ["numpydoc", "sphinx-rtd-theme", "nbsphinx", "jupyter-client", "ipykernel", "poppy", "nbclient", "nbformat", "nbconvert", "sphinx-automodapi", "progressbar2"]
+
+[package.source]
+type = "git"
+url = "https://github.com/ehpor/hcipy"
+reference = "master"
+resolved_reference = "9ea4c9b12397f0e6ca5726dc1bb6d56d69caeca1"
 
 [[package]]
 name = "imageio"
@@ -323,6 +330,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
 name = "tqdm"
 version = "4.62.0"
 description = "Fast, Extensible Progress Meter"
@@ -361,7 +376,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.10"
-content-hash = "b136c6e9b37da8da4bd93d9585b09448f5c679f9af519e0c0fef7373400bfa58"
+content-hash = "042be0354d41189bc0423129b7234c5b19a5b2223a014f0bf3a1c7571a486b89"
 
 [metadata.files]
 asdf = [
@@ -397,10 +412,7 @@ cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
 ]
-hcipy = [
-    {file = "hcipy-0.4.0-py3-none-any.whl", hash = "sha256:686c4637f12bb68b088bf8a7514e76a1e259c2bf337f3aafb2290fe5f5abe48e"},
-    {file = "hcipy-0.4.0.tar.gz", hash = "sha256:b27ccf5c48083e88e5af7e6bd15966cba0170de7047d466f3309d7b5845eb27b"},
-]
+hcipy = []
 imageio = [
     {file = "imageio-2.9.0-py3-none-any.whl", hash = "sha256:3604d751f03002e8e0e7650aa71d8d9148144a87daf17cb1f3228e80747f2e6b"},
     {file = "imageio-2.9.0.tar.gz", hash = "sha256:52ddbaeca2dccf53ba2d6dec5676ca7bc3b2403ef8b37f7da78b7654bb3e10f0"},
@@ -729,6 +741,10 @@ semantic-version = [
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+toml = [
+    {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
+    {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 tqdm = [
     {file = "tqdm-4.62.0-py2.py3-none-any.whl", hash = "sha256:706dea48ee05ba16e936ee91cb3791cd2ea6da348a0e50b46863ff4363ff4340"},
