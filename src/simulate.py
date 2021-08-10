@@ -214,8 +214,8 @@ def simulate(
         psf_curves=psf_curves,
         img_curves=img_curves,
         weights=weights,
-        original_psf_curve = original_psf_mean,
-        original_coro_curve = original_coro_mean,
+        original_psf_curve=original_psf_mean,
+        original_coro_curve=original_coro_mean,
     )
     plot_attenuation_curves(
         radii,
@@ -245,14 +245,18 @@ def merge_pdfs(names, outname="lyot.pdf"):
 
 
 if __name__ == "__main__":
-    for erosion_size in filter(lambda x: x % 2 == 1, range(3, 30)):
-        simulate(
-            tip_tilt_rms=7.0,
-            fpm_size_ld=2,
-            wavelength=750e-9,
-            lyot_type="glass",
-            outer_scale=0.95,
-            inner_scale=0.35,
-            erosion_size=erosion_size,
-            N_tiptilts=1000
-        )
+    outer_scales = [0.99, 0.95, 0.9, 0.85, 0.8]
+    inner_scales = [0.31, 0.35, 0.4, 0.45, 0.5]
+    erosion_sizes = list(filter(lambda x: x % 2 == 1, range(3, 16)))
+    for scale_idx in tqdm.trange(len(outer_scales), desc="scales"):
+        for erosion_size in tqdm.tqdm(erosion_sizes, desc="erosion size"):
+            simulate(
+                tip_tilt_rms=7.0,
+                fpm_size_ld=3,
+                wavelength=750e-9,
+                lyot_type="glass",
+                outer_scale=outer_scales[scale_idx],
+                inner_scale=inner_scales[scale_idx],
+                erosion_size=erosion_size,
+                N_tiptilts=1000,
+            )

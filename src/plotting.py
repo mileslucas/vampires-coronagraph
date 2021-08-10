@@ -222,7 +222,7 @@ def plot_attenuation_curves(
         xlim=(0, rmax),
     )
     ylim = axes[2].get_ylim()
-    ylo = img_mean_curve[:np.argmax(radii > rmax)].min() / 3
+    ylo = img_mean_curve[: np.argmax(radii > rmax)].min() / 3
     axes[2].vlines(fpm_size, *ylim, color="k", ls="--", alpha=0.3, label="FPM radius")
     axes[2].set_ylim(ylo, 1)
     axes[2].legend(ncol=1)

@@ -93,7 +93,9 @@ def focal_plane_mask(focal_grid, size):
 def make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop=None):
     fpm = focal_plane_mask(focal_grid, fpm_size)
     size = fpm_size * 2 * FOCAL_LENGTH
-    coronagraph = hp.LyotCoronagraph(pupil_grid, fpm, lyot_stop=lyot_stop, focal_length=FOCAL_LENGTH)
+    coronagraph = hp.LyotCoronagraph(
+        pupil_grid, fpm, lyot_stop=lyot_stop, focal_length=FOCAL_LENGTH
+    )
     return coronagraph
 
 
