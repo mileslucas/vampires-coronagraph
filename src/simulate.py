@@ -27,11 +27,12 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
-def print_params(fpm_size_ld, wavelength, lyot_type, **lyot_params):
+def print_params(fpm_size_ld, wavelength, lyot_type, transmission, **lyot_params):
     lines = [
         f"wavelengths: {wavelength*1e9:.0f}+-{BANDWIDTH*1e9/2:.0f} nm",
         f"fpm size [lam/D]: {fpm_size_ld:d}",
         f"fpm size [mas]: {np.degrees(fpm_size_ld * wavelength / APERTURE_DIAMETER) * 36e5:.0f}",
+        f"fpm transmission: {transmission}"
     ]
     if lyot_type == "mirror":
         lines.extend(
@@ -52,10 +53,11 @@ def print_params(fpm_size_ld, wavelength, lyot_type, **lyot_params):
     logger.info("\n".join(lines))
 
 
-def format_filename(fpm_size_ld, wavelength, lyot_type, **lyot_params):
+def format_filename(fpm_size_ld, wavelength, lyot_type, transmission, **lyot_params):
     tokens = [
         f"wave-{wavelength*1e9:.0f}nm",
         f"fpm-{fpm_size_ld:.1f}",
+        f"trans-{transmission:.2e}"
     ]
     if lyot_type == "mirror":
         tokens.extend(["mirror", f"outer-{lyot_params['outer_scale']:.2f}"])
@@ -76,6 +78,7 @@ def simulate(
     fpm_size_ld=2,
     wavelength=750e-9,
     lyot_type="mirror",
+    transmission=0,
     N_tiptilts=1000,
     N_wavelengths=10,
     **lyot_params,
@@ -83,13 +86,13 @@ def simulate(
     tip_tilt_dist = norm(scale=tip_tilt_rms)
     fpm_size = fpm_size_ld * wavelength / APERTURE_DIAMETER
 
-    print_params(fpm_size_ld, wavelength, lyot_type, **lyot_params)
-    filename = format_filename(fpm_size_ld, wavelength, lyot_type, **lyot_params)
+    print_params(fpm_size_ld, wavelength, lyot_type,  transmission, **lyot_params)
+    filename = format_filename(fpm_size_ld, wavelength, lyot_type, transmission, **lyot_params)
 
     # define grids and propagator
-    pupil_grid, focal_grid = create_grids(775e-9)
+    pupil_grid, focal_grid = create_grids(wavelength)
     propagator = hp.FraunhoferPropagator(
-        pupil_grid, focal_grid, focal_length=FOCAL_LENGTH
+        pupil_grid, focal_grid, focal_length=EFF_FOCAL_LENGTH
     )
     nbins = 18
     bin_size = focal_grid.x.max() / nbins
@@ -101,7 +104,7 @@ def simulate(
         lyot_stop = eroded_lyot_stop(pupil_grid, **lyot_params)
     else:
         raise ValueError(f"invalid Lyot stop type {lyot_type}")
-    coronagraph = make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop)
+    coronagraph = make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop, transmission)
 
     wavelengths = np.linspace(725e-9, 775e-9, N_wavelengths)
 
@@ -114,10 +117,10 @@ def simulate(
         wavefront = make_wavefront(pupil_grid, wave, (0, 0))
         orig_psf = propagator(wavefront)
         masked_psf = coronagraph.focal_plane_mask(orig_psf)
-        lyot_plane = propagator.backward(masked_psf)
+        lyot_plane = coronagraph.prop.backward(masked_psf)
         # post_lyot_plane = lyot_stop(lyot_plane)
         post_lyot_plane = coronagraph(wavefront)
-        orig_img = propagator(post_lyot_plane)
+        orig_img = coronagraph.prop(post_lyot_plane)
 
         original_psf += orig_psf.intensity
         original_mask_psf += masked_psf.intensity
@@ -245,18 +248,21 @@ def merge_pdfs(names, outname="lyot.pdf"):
 
 
 if __name__ == "__main__":
-    outer_scales = [0.99, 0.95, 0.9, 0.85, 0.8]
-    inner_scales = [0.31, 0.35, 0.4, 0.45, 0.5]
-    erosion_sizes = list(filter(lambda x: x % 2 == 1, range(3, 16)))
+    outer_scales = [0.9, 0.9, 0.95, 0.95]  # , 0.95, 0.9, 0.85, 0.8]
+    inner_scales = [0.4, 0.5, 0.4, 0.5]  # , 0.35, 0.4, 0.45, 0.5]
+    erosion_sizes = [3]  # list(filter(lambda x: x % 2 == 1, range(3, 16)))
+    transmissions = [1e-8, 1e-3]#, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
     for scale_idx in tqdm.trange(len(outer_scales), desc="scales"):
-        for erosion_size in tqdm.tqdm(erosion_sizes, desc="erosion size"):
-            simulate(
-                tip_tilt_rms=7.0,
-                fpm_size_ld=3,
-                wavelength=750e-9,
-                lyot_type="glass",
-                outer_scale=outer_scales[scale_idx],
-                inner_scale=inner_scales[scale_idx],
-                erosion_size=erosion_size,
-                N_tiptilts=1000,
-            )
+        for fpm_size in tqdm.tqdm([2, 3, 5, 7], desc="erosion size"):
+            for transmission in tqdm.tqdm(transmissions, desc="FPM transmission"):
+                simulate(
+                    tip_tilt_rms=7.0,
+                    fpm_size_ld=fpm_size,
+                    wavelength=750e-9,
+                    lyot_type="glass",
+                    transmission=transmission,
+                    outer_scale=outer_scales[scale_idx],
+                    inner_scale=inner_scales[scale_idx],
+                    erosion_size=3,
+                    N_tiptilts=1000,
+                )

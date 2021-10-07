@@ -13,7 +13,7 @@ from config import *
 def create_grids(wavelength):
     # generating the grids
     pupil_grid = hp.make_pupil_grid(APERTURE.shape, diameter=APERTURE_DIAMETER)
-    Δx = wavelength * F_RATIO
+    Δx = wavelength * VAMPIRES_F_RATIO
     # q = Δx / VAMPIRES_PIXEL_PITCH
     q = 4
     focal_grid = hp.make_focal_grid(q, num_airy=16, spatial_resolution=Δx)
@@ -81,7 +81,7 @@ def focal_plane_mask(focal_grid, size):
     focal_plane_mask : ndarray
     """
     # convert size to meters
-    size *= 2 * FOCAL_LENGTH
+    size *= 2 * EFF_FOCAL_LENGTH
     # generate small circular hole
     focal_plane_mask = hp.evaluate_supersampled(
         hp.circular_aperture(size), focal_grid, 4
@@ -90,11 +90,16 @@ def focal_plane_mask(focal_grid, size):
     return np.abs(focal_plane_mask - 1)
 
 
-def make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop=None):
-    fpm = focal_plane_mask(focal_grid, fpm_size)
-    size = fpm_size * 2 * FOCAL_LENGTH
+def opaque_focal_plane_mask(focal_grid, size, transmission):
+    fpm = focal_plane_mask(focal_grid, size)
+    fpm[fpm == 0] = transmission
+    return fpm
+
+
+def make_coronagraph(pupil_grid, focal_grid, fpm_size, lyot_stop=None, transmission=0):
+    fpm = opaque_focal_plane_mask(focal_grid, fpm_size, transmission)
     coronagraph = hp.LyotCoronagraph(
-        pupil_grid, fpm, lyot_stop=lyot_stop, focal_length=FOCAL_LENGTH
+        pupil_grid, fpm, lyot_stop=lyot_stop, focal_length=EFF_FOCAL_LENGTH
     )
     return coronagraph
 

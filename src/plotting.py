@@ -50,78 +50,86 @@ def plot_lyot_mosaic(
     axes[1].colorbar(m, loc="l", label="rad")
 
     # unobstructed PSF & contrast
+    fpm_units = 1 / (np.degrees(VAMPIRES_FOCAL_PLATE_SCALE) * 3600)
     psf_norm = np.log10(psf_ref / psf_ref.max())
-    m = hp.imshow_field(psf_norm, vmin=-8, ax=axes[2])
-    focal_ticks = axes[2].get_xticks()
-    focal_ticklabs = [
-        f"{v:.1f}" for v in np.degrees(focal_ticks * OPTICAL_PLATE_SCALE) * 3600
-    ]
+    m = hp.imshow_field(
+        psf_norm,
+        vmin=-8,
+        grid_units=fpm_units,
+        ax=axes[2],
+    )
     axes[2].format(
         title="unobstructed PSF",
         xlabel="arcsec",
         ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
     )
     axes[2].colorbar(m, loc="t")
 
-    hp.imshow_field(focal_plane_mask, ax=axes[3], cmap="gray")
+    hp.imshow_field(
+        focal_plane_mask,
+        grid_units=fpm_units,
+        ax=axes[3],
+        cmap="gray",
+    )
+    LAM_D = 750e-9 / APERTURE_DIAMETER
     axes[3].format(
-        title=f"focal plane mask\n({np.radians(fpm_size / 3600) / LAMBDA_D:.0f} $\lambda$/D; {fpm_size * 1e3:.0f} mas)",
+        title=f"focal plane mask\n({np.radians(fpm_size / 3600) / LAM_D:.0f} $\lambda$/D; {fpm_size * 1e3:.0f} mas)",
         xlabel="arcsec",
         ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
     )
     axes[3].grid(True, color="k", alpha=0.2)
     with np.errstate(divide="ignore"):
         obs_psf_norm = np.log10(masked_psf / psf_ref.max())
-    m = hp.imshow_field(obs_psf_norm, vmin=-8, vmax=0, ax=axes[4], zorder=999)
+    m = hp.imshow_field(
+        obs_psf_norm,
+        vmin=-8,
+        vmax=0,
+        grid_units=fpm_units,
+        ax=axes[4],
+        zorder=999,
+    )
     axes[4].format(
         title="obstructed PSF",
         xlabel="arcsec",
         ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
         grid=True,
     )
     axes[4].colorbar(m, loc="t")
 
-    m = hp.imshow_field(lyot_plane, ax=axes[5])
-    axes[5].format(title="Lyot plane", xlabel="x [m]", ylabel="y [m]")
+    m = hp.imshow_field(lyot_plane, grid_units=1e3 * VAMPIRES_MAGNIFICATION, ax=axes[5])
+    axes[5].format(title="Lyot plane", xlabel="x [mm]", ylabel="y [mm]")
     axes[5].colorbar(m, loc="t")
 
-    hp.imshow_field(lyot_stop, ax=axes[6], cmap="gray")
-    axes[6].format(title=f"Lyot stop", xlabel="x [m]", ylabel="y [m]")
+    hp.imshow_field(
+        lyot_stop, grid_units=1e3 * VAMPIRES_MAGNIFICATION, ax=axes[6], cmap="gray"
+    )
+    axes[6].format(title=f"Lyot stop", xlabel="x [mm]", ylabel="y [mm]")
 
-    m = hp.imshow_field(post_lyot_plane, vmax=lyot_plane.max(), ax=axes[7])
-    axes[7].format(title="post Lyot plane", xlabel="x [m]", ylabel="y [m]")
+    m = hp.imshow_field(
+        post_lyot_plane,
+        grid_units=1e3 * VAMPIRES_MAGNIFICATION,
+        vmax=lyot_plane.max(),
+        ax=axes[7],
+    )
+    axes[7].format(title="post Lyot plane", xlabel="x [mm]", ylabel="y [mm]")
     axes[7].colorbar(m, loc="r")
 
     post_psf_norm = np.log10(psf / psf_ref.max())
-    m = hp.imshow_field(post_psf_norm, vmin=-8, vmax=0, ax=axes[8])
-    axes[8].format(
-        title="post-Lyot PSF",
-        xlabel="arcsec",
-        ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
+    m = hp.imshow_field(
+        post_psf_norm,
+        vmin=-8,
+        vmax=0,
+        grid_units=fpm_units,
+        ax=axes[8],
     )
+    axes[8].format(title="post-Lyot PSF", xlabel="arcsec", ylabel="arcsec")
     axes[8].colorbar(m, loc="r")
 
-    rmax = psf_ref.grid.x.max() * np.degrees(OPTICAL_PLATE_SCALE) * 3600
+    rmax = psf_ref.grid.x.max() * np.degrees(VAMPIRES_FOCAL_PLATE_SCALE) * 3600
     bins, psf_mean, _, _ = hp.radial_profile(psf_ref, bin_size)
     _, img_mean, _, _ = hp.radial_profile(psf, bin_size)
 
-    radii = bins * np.degrees(OPTICAL_PLATE_SCALE) * 3600
+    radii = bins * np.degrees(VAMPIRES_FOCAL_PLATE_SCALE) * 3600
     axes[9].plot(radii, psf_mean / psf_mean.max(), lw=2, label="PSF")
     axes[9].plot(radii, img_mean / psf_mean.max(), lw=2, label="post-coronagraphic")
     axes[9].format(
@@ -170,33 +178,14 @@ def plot_attenuation_curves(
     layout = [[1, 3, 3], [2, 3, 3]]
     fig, axes = pro.subplots(layout, width="10in", height="6in", share=0)
 
+    fpm_units = 1 / (np.degrees(VAMPIRES_FOCAL_PLATE_SCALE) * 3600)
     psf_norm = np.log10(mean_psf / mean_psf.max())
-    m = hp.imshow_field(psf_norm, vmin=-8, ax=axes[0])
-    focal_ticks = axes[0].get_xticks()
-    focal_ticklabs = [
-        f"{v:.1f}" for v in np.degrees(focal_ticks * OPTICAL_PLATE_SCALE) * 3600
-    ]
-    axes[0].format(
-        title="unobstructed PSF",
-        xlabel="arcsec",
-        ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
-    )
+    m = hp.imshow_field(psf_norm, vmin=-8, grid_units=fpm_units, ax=axes[0])
+    axes[0].format(title="unobstructed PSF", xlabel="arcsec", ylabel="arcsec")
 
     img_norm = np.log10(mean_img / mean_psf.max())
     m = hp.imshow_field(img_norm, vmin=-8, vmax=0, ax=axes[1])
-    axes[1].format(
-        title="post-coronagraphic PSF",
-        xlabel="arcsec",
-        ylabel="arcsec",
-        xticks=focal_ticks,
-        xticklabels=focal_ticklabs,
-        yticks=focal_ticks,
-        yticklabels=focal_ticklabs,
-    )
+    axes[1].format(title="post-coronagraphic PSF", xlabel="arcsec", ylabel="arcsec")
     fig.colorbar(m, loc="l", label="log10[image / max(PSF)]")
 
     axes[2].plot(radii, psf_curve / psfmax, lw=2, c="C3", label="PSF (no jitter)")

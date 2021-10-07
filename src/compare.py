@@ -47,7 +47,7 @@ def compare_plot(radii, psf_curve, img_curves, img_curves_jitter, labels):
     # axes.set_ylim(ylo, 1)
     axes.legend(ncol=3)
 
-    fig.save(figuredir("compare_erosion_outer-0.90_inner-0.40.pdf"))
+    fig.save(figuredir("compare_erosion_outer-0.99_inner-0.31.pdf"))
     pro.close(fig)
     # logger.info(f"saved image to {os.path.normpath(figuredir(savename))}")
 
