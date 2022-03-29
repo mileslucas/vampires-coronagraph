@@ -184,7 +184,7 @@ def plot_attenuation_curves(
     axes[0].format(title="unobstructed PSF", xlabel="arcsec", ylabel="arcsec")
 
     img_norm = np.log10(mean_img / mean_psf.max())
-    m = hp.imshow_field(img_norm, vmin=-8, vmax=0, ax=axes[1])
+    m = hp.imshow_field(img_norm, vmin=-8, vmax=0, grid_units=fpm_units, ax=axes[1])
     axes[1].format(title="post-coronagraphic PSF", xlabel="arcsec", ylabel="arcsec")
     fig.colorbar(m, loc="l", label="log10[image / max(PSF)]")
 

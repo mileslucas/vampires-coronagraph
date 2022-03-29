@@ -118,8 +118,7 @@ def simulate(
         orig_psf = propagator(wavefront)
         masked_psf = coronagraph.focal_plane_mask(orig_psf)
         lyot_plane = coronagraph.prop.backward(masked_psf)
-        # post_lyot_plane = lyot_stop(lyot_plane)
-        post_lyot_plane = coronagraph(wavefront)
+        post_lyot_plane = lyot_stop(lyot_plane)
         orig_img = coronagraph.prop(post_lyot_plane)
 
         original_psf += orig_psf.intensity
@@ -195,8 +194,8 @@ def simulate(
         bins, psf_curve, _, _ = hp.radial_profile(psf_image, bin_size)
         _, img_curve, _, _ = hp.radial_profile(output_image, bin_size)
         radii = bins * np.degrees(OPTICAL_PLATE_SCALE) * 3600
-        mean_psf += psf_image * weight
-        mean_img += output_image * weight
+        mean_psf += psf_image# * weight
+        mean_img += output_image# * weight
         weights.append(weight)
         psf_curves.append(psf_curve)
         img_curves.append(img_curve)
@@ -248,15 +247,15 @@ def merge_pdfs(names, outname="lyot.pdf"):
 
 
 if __name__ == "__main__":
-    outer_scales = [0.9, 0.9, 0.95, 0.95]  # , 0.95, 0.9, 0.85, 0.8]
-    inner_scales = [0.4, 0.5, 0.4, 0.5]  # , 0.35, 0.4, 0.45, 0.5]
+    outer_scales = [0.9]  # , 0.95, 0.9, 0.85, 0.8]
+    inner_scales = [0.45]  # , 0.35, 0.4, 0.45, 0.5]
     erosion_sizes = [3]  # list(filter(lambda x: x % 2 == 1, range(3, 16)))
     transmissions = [1e-8, 1e-3]#, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
     for scale_idx in tqdm.trange(len(outer_scales), desc="scales"):
         for fpm_size in tqdm.tqdm([2, 3, 5, 7], desc="erosion size"):
             for transmission in tqdm.tqdm(transmissions, desc="FPM transmission"):
                 simulate(
-                    tip_tilt_rms=7.0,
+                    tip_tilt_rms=8.0,
                     fpm_size_ld=fpm_size,
                     wavelength=750e-9,
                     lyot_type="glass",
