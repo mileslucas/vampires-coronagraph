@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.0
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -62,8 +62,14 @@ fpm_masks = [2, 3, 5, 7] # lambda / D, radius
 # first column in 656nm, second is 750nm
 fpm_masks_angle = @. fpm_masks * target_wavelength / clear_aperture |> u"arcsecond"
 
+# ╔═╡ 9cf95d35-6a17-4752-99dc-f4580e1b3c0e
+fpm_masks_radius = @. fpm_masks_angle / effective_plate_scale |> u"μm"
+
+# ╔═╡ 7b5be534-da03-45ba-a2c6-1f1b7fdbc917
+fpm_masks_angle_calculated = @. fpm_masks_radius / (clear_aperture * focal_plane_coll_length / (2 * 3.1644u"mm" / 0.9)) |> u"arcsecond" |> x -> x * 1e3
+
 # ╔═╡ c5a7185b-34f5-4aaa-87dc-f687c5785c47
-fpm_masks_diameter = @. 2 * fpm_masks_angle / effective_plate_scale |> u"μm"
+fpm_masks_diameter = 2 .* fpm_masks_radius
 
 # ╔═╡ 1fb30e04-dba0-4d2b-8151-2c64cae46592
 md"### Beam shift measurement"
@@ -80,7 +86,7 @@ end;
 δ = 2 * (n - 1) * α
 
 # ╔═╡ 9bbf3483-050b-4d5d-b49f-3f533417393c
-(target_wavelength / effective_diameter) / δ |> u"NoUnits"
+δ / (target_wavelength / effective_diameter) |> u"NoUnits"
 
 # ╔═╡ 172bba75-bd99-4f9e-953b-d92a7ebcb5fd
 md"""
@@ -104,8 +110,16 @@ UnitfulAngles = "~0.6.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
+[[Artifacts]]
+uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[CompilerSupportLibraries_jll]]
+deps = ["Artifacts", "Libdl"]
+uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
+version = "0.5.0+0"
 
 [[ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -121,20 +135,29 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[LinearAlgebra]]
-deps = ["Libdl"]
+deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
+[[OpenBLAS_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
+uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
+version = "0.3.17+2"
+
 [[Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[Random]]
-deps = ["Serialization"]
+deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[SHA]]
+uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+version = "0.7.0"
 
 [[Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -153,13 +176,18 @@ deps = ["Dates", "Unitful"]
 git-tree-sha1 = "dd21b5420bf6e9b76a8c6e56fb575319e7b1f895"
 uuid = "6fb2a4bd-7999-5318-a3b2-8ad61056cd98"
 version = "0.6.1"
+
+[[libblastrampoline_jll]]
+deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
+version = "4.0.0+0"
 """
 
 # ╔═╡ Cell order:
 # ╟─c62c6afa-85c2-4699-a1c2-ee815680f359
 # ╟─9f7970f3-abe7-4c75-9240-fd00dee8d7a5
 # ╟─7f22f26b-aae3-4684-b01c-711567ec9e09
-# ╟─82befe1c-06b8-4aff-af57-b54d204f6cda
+# ╠═82befe1c-06b8-4aff-af57-b54d204f6cda
 # ╟─69ec058c-a65d-45da-b73a-7c93352775af
 # ╠═6257f73a-daf1-4acb-a3ca-fcf2da357ea6
 # ╠═b44f0439-3e83-4039-b9d4-c0b80137f723
@@ -168,6 +196,8 @@ version = "0.6.1"
 # ╠═c2507457-7115-4cd2-a03f-dff0eb8fe67b
 # ╟─8e9e0d9e-c91e-4830-8637-8a795debe184
 # ╠═e0f88a2f-eed1-4200-accb-81739068d2ab
+# ╠═9cf95d35-6a17-4752-99dc-f4580e1b3c0e
+# ╠═7b5be534-da03-45ba-a2c6-1f1b7fdbc917
 # ╠═c5a7185b-34f5-4aaa-87dc-f687c5785c47
 # ╟─1fb30e04-dba0-4d2b-8151-2c64cae46592
 # ╠═df4c6716-02ba-4131-ba7f-83cda9ea6688
