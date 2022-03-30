@@ -1,0 +1,96 @@
+\documentclass[12pt]{spieman}  % 12pt font required by SPIE;
+%\documentclass[a4paper,12pt]{spieman}  % use this instead for A4 paper
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{tocloft}
+
+\title{Visible-light Lyot coronagraph for SCExAO/VAMPIRES}
+
+\author[a,*]{Miles Lucas}
+\author[a]{Michael Bottom}
+\author[b,c]{Olivier Guyon}
+\author[b]{Julien Lozi}
+\author[d]{Barnaby Norris}
+\affil[a]{Institute for Astronomy, Unviersity of Hawai'i,  640 N. Aohoku Pl., Hilo, HI 96720, USA}
+\affil[b]{National Observatory of Japan, Subaru Telescope, 650 N. Aohoku Pl., Hilo, HI 96720, USA}
+\affil[c]{Steward Observatory, Unviersity of Arizona, 933 N. Cherry Ave., Tucson, AZ 85721, USA}
+\affil[d]{Sydney Institute for Astronomy, School of Physics, Physics Rd., University of Sydney, NSW 2006, Australia}
+
+\renewcommand{\cftdotsep}{\cftnodots}
+\cftpagenumbersoff{figure}
+\cftpagenumbersoff{table} 
+\begin{document} 
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+% Include a list of up to six keywords after the abstract
+\keywords{optics, coronagraph, light, optical, visible, high-contrast}
+
+% Include email contact information for corresponding author
+{\noindent \footnotesize\textbf{*}Miles Lucas,  \linkable{mdlucas@hawaii.edu}}
+
+\begin{spacing}{2}   % use double spacing for rest of manuscript
+
+\section{Introduction}\label{sec:intro}
+
+Coronagraphy is a well-established technique for imaging circumstellar regions by controlling the stellar diffraction pattern. In high-contrast imaging, coronagraphs are an important tool for increasing the sensitivity around the star, enabling the direct detection of exoplanets and circumstellar disks. Combined with adaptive optics (AO), a coronagraph can enable detections of sources many orders of magnitude fainter than their host stars ($\sim 10^{-6}$).
+
+\section{Methods}\label{sec:methods}
+
+\subsection{Designing the Coronagraph}\label{sec:design}
+
+We used the open-source python package \texttt{HCIPy}\cite{por2018} for simulating our coronagraph design with Fourier optics. We defined our wavefronts on a rasterized image of the SCExAO pupil sampled on a 256x256 pixel grid. Initially, we do not introduce any wavefront errors. Using a Fraunhofer propagator with an F/28.4 focal ratio, we formed the intermediate focal plane, where the focal plane mask will be inserted. The focal plane masks are hard-edged circles, and were modeled using a circular apodizer with either 0\% or 0.1\% transmission. We designed four focal plane masks with radii of 36, 54, 90, and 126 mas, respectively. These radii correspond to $\sim$2, 3, 5, and 7 $\lambda/D$ at 750 nm. The focal plane after the mask was propagated to the next pupil plane, where the Lyot stop will be inserted. 
+
+The Lyot stop was modeled using a series of circular and rectangular apodizers with 0\% transmission. The stop design follows the shape of the SCExAO pupil with an undersized diameter and oversized obstructions. The outer diameter is 90\% the clear aperture diameter, the inner obstruction is 45\% the clear aperture diameter (the secondary obstruction is $\sim$31\% the clear aperture diameter), the secondary support struts are 200\% as wide, and the bad deformable mirror probes are 150\% in size. The ratio of areas of the Lyot stop and the SCExAO pupil is 63.7\%. This final wavefront was propagated to the detector focal plane, forming the post-coronagraphic point-spread function.
+
+We repeated the above process for a series of wavelengths to approximate a broadband PSF. We summed the images produced with 10 wavefronts from 725 nm to 775 nm to mimic the ``750-50'' filter (750 nm central wavelength with 50 nm uniform bandpass). We chose this filter because it has the highest throughput. As an additional step, we generated many datasets with random tip and tilt errors sampled from a bivariate Gaussian with 10 mas RMS jitter to test the coronagraph's resiliency to low-order wavefront errors.
+
+We evaluated the performance and quality of our simulations from the radial profiles of the unobstructed PSF and the post-coronagraphic PSF.
+
+\subsection{Construction and Installation}\label{sec:install}
+
+We chose a metallic vapor deposition process\footnote{\url{https://opto-line.com/}} for both the focal plane masks and the Lyot stops. The patterns are deposited onto a glass substrate with micrometer-precision, giving us great flexibility and precision in our designs. One downside of this approach is that the glass focal plane mask will shift the focus since it is in a converging beam. In VAMPIRES, there is a custom optics mount in the focal plane with 8 mm x 8 mm slots, so we arranged for four masks to be diced from a signel 30 mm optical flat\footnote{\href{https://www.edmundoptics.com/p/30mm-dia-4mm-thick-nir-i-coated-lambda10-fused-silica-window/27562/}{Edmund Optics \#84-466}}, making sure each segment was within the clear aperture. The focal plane mask patterns were deposited with chromium with thicknesses of 110 nm. The thickness was determined from the optical penetration depth for a desired transmission
+\begin{equation}
+    \hat{s}(\lambda) = -\frac{\lambda}{4\pi\tilde{k}(\lambda)}\ln{\frac{I(\lambda)}{I_0(\lambda)}}
+    \label{eqn:throughput}
+\end{equation}
+where $\hat{s}$ is the thickness, $\lambda$ is the wavelength (tested across the 600-800 nm range for VAMPIRES), $\tilde{k}$ is the extinction coefficient\footnote{Complex indices of refraction were retrieved from \url{http://www.angstec.com/}}, and $I/I_0$ is the relative intensity for transmitted light. For each of the four mask radii, we constructed a mask with 1e-8 transmission and 0.1\% transmission, which corresponds to thicknesses of 300 nm and 110 nm of chromium, respectively.
+
+The Lyot stop was deposited onto a 25 mm optical flat\footnote{\href{https://www.edmundoptics.com/p/25mm-dia-3mm-thick-nir-i-coated-lambda10-fused-silica-window/27561/}{Edmund Optics \#84-465}} with no further processing. We designed the Lyot stop to be reflective for the purposes of alignment and low-order wavefront sensing from the rejected light. To this end, we constructed the stop with pure gold on its first surface for its high reflectivity ($>$90\%) across the 600-800 nm wavelength range. Following the advice from our vendor, this gold layer was deposited on top of a layer of chromium which adheres better to the anti-reflection coating on our subtrates than gold. We used \autoref{eqn:throughput} with a linear combination of 50\% chromium and 50\% gold to determine a combined thickness of 285 nm for 1e-8 transmission. The final thickness of the chromium and gold deposit was specified as 300 nm.
+
+The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. We decided to only install the four  transmissive (0.1\%) focal plane masks given the limited number of slots in the focal plane mount. The Lyot stop was accidentally mirrored with respect to the pupil and was not correctly scaled to the beam width. A new stop was designed and procured to address these issues and was deployed on SCExAO in February, 2022.
+
+\section{Results}\label{sec:results}
+
+\subsection{Testbed results}\label{sec:testbed}
+
+Our first tests use the internal calibration source on SCExAO for determining the throughput, attenuation, and contrast of the coronagraph for each focal plane mask. 
+
+\subsection{On-sky results}\label{sec:onsky}
+
+\section{Conclusions}\label{sec:conclusions}
+
+In this paper we have described the design, construction, and deployment of a visible-light Lyot coronagraph on SCExAO/VAMPIRES. 
+
+%%%%% References %%%%%
+
+\bibliography{report}   % bibliography data in report.bib
+\bibliographystyle{spiejour}   % makes bibtex use spiejour.bst
+
+%%%%% Biographies of authors %%%%%
+
+\vspace{2ex}\noindent\textbf{Miles Lucas} is a Ph.D. candidate in astronomy at the Institute for Astronomy in Hawai'i. He earned his B.S. in physics from Iowa State University in 2019 and his M.S. in astronomy from the University of Hawai'i in 2021. His research interests are in high-contrast imaging- including instrument development, image-processing techniques, and statistical modeling.
+
+\vspace{1ex}
+\noindent Biographies and photographs of the other authors are not available.
+
+\listoffigures
+\listoftables
+
+\end{spacing}
+\end{document}
