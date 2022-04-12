@@ -54,14 +54,14 @@ We evaluated the performance and quality of our simulations from the radial prof
 
 \subsection{Construction and Installation}\label{sec:install}
 
-We chose a metallic vapor deposition process\footnote{\url{https://opto-line.com/}} for both the focal plane masks and the Lyot stops. The patterns are deposited onto a glass substrate with micrometer-precision, giving us great flexibility and precision in our designs. One downside of this approach is that the glass focal plane mask will shift the focus since it is in a converging beam. In VAMPIRES, there is a custom optics mount in the focal plane with 8 mm x 8 mm slots, so we arranged for four masks to be diced from a signel 30 mm optical flat\footnote{\href{https://www.edmundoptics.com/p/30mm-dia-4mm-thick-nir-i-coated-lambda10-fused-silica-window/27562/}{Edmund Optics \#84-466}}, making sure each segment was within the clear aperture. The focal plane mask patterns were deposited with chromium with thicknesses of 110 nm. The thickness was determined from the optical penetration depth for a desired transmission
+We chose a metallic vapor deposition process (\url{https://opto-line.com/}) for both the focal plane masks and the Lyot stop. The patterns are deposited onto a glass substrate with micrometer-precision, giving us great flexibility and precision in our designs. One downside of this approach is that the glass focal plane mask will shift the focus since it is in a converging beam. In VAMPIRES, there is a custom optics mount in the focal plane with 8 mm x 8 mm slots, so we arranged for four masks to be diced from a single 30 mm optical flat (\href{https://www.edmundoptics.com/p/30mm-dia-4mm-thick-nir-i-coated-lambda10-fused-silica-window/27562/}{Edmund Optics \#84-466}), making sure each segment was within the clear aperture. The focal plane mask patterns were deposited with chromium with thicknesses of 110 nm. The thickness was determined from the optical penetration depth for a desired transmission
 \begin{equation}
     \hat{s}(\lambda) = -\frac{\lambda}{4\pi\tilde{k}(\lambda)}\ln{\frac{I(\lambda)}{I_0(\lambda)}}
     \label{eqn:throughput}
 \end{equation}
-where $\hat{s}$ is the thickness, $\lambda$ is the wavelength (tested across the 600-800 nm range for VAMPIRES), $\tilde{k}$ is the extinction coefficient\footnote{Complex indices of refraction were retrieved from \url{http://www.angstec.com/}}, and $I/I_0$ is the relative intensity for transmitted light. For each of the four mask radii, we constructed a mask with 1e-8 transmission and 0.1\% transmission, which corresponds to thicknesses of 300 nm and 110 nm of chromium, respectively.
+where $\hat{s}$ is the thickness, $\lambda$ is the wavelength (tested across the 600-800 nm range for VAMPIRES), $\tilde{k}$ is the extinction coefficient, and $I/I_0$ is the relative intensity for transmitted light. For each of the four mask radii, we constructed a mask with 1e-8 transmission and 0.1\% transmission, which corresponds to thicknesses of 300 nm and 110 nm of chromium, respectively.
 
-The Lyot stop was deposited onto a 25 mm optical flat\footnote{\href{https://www.edmundoptics.com/p/25mm-dia-3mm-thick-nir-i-coated-lambda10-fused-silica-window/27561/}{Edmund Optics \#84-465}} with no further processing. We designed the Lyot stop to be reflective for the purposes of alignment and low-order wavefront sensing from the rejected light. To this end, we constructed the stop with pure gold on its first surface for its high reflectivity ($>$90\%) across the 600-800 nm wavelength range. Following the advice from our vendor, this gold layer was deposited on top of a layer of chromium which adheres better to the anti-reflection coating on our subtrates than gold. We used \autoref{eqn:throughput} with a linear combination of 50\% chromium and 50\% gold to determine a combined thickness of 285 nm for 1e-8 transmission. The final thickness of the chromium and gold deposit was specified as 300 nm.
+The Lyot stop was deposited onto a 25 mm optical flat (\href{https://www.edmundoptics.com/p/25mm-dia-3mm-thick-nir-i-coated-lambda10-fused-silica-window/27561/}{Edmund Optics \#84-465}) with no further processing. We designed the Lyot stop to be reflective for the purposes of alignment and low-order wavefront sensing from the rejected light. To this end, we constructed the stop with pure gold on its first surface for its high reflectivity ($>$90\%) across the 600-800 nm wavelength range. Following the advice from our vendor, this gold layer was deposited on top of a layer of chromium which adheres better to the anti-reflection coating on our subtrates than gold. We used \autoref{eqn:throughput} with a linear combination of 50\% chromium and 50\% gold to determine a combined thickness of 285 nm for 1e-8 transmission. The final thickness of the chromium and gold deposit was specified as 300 nm.
 
 The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. We decided to only install the four  transmissive (0.1\%) focal plane masks given the limited number of slots in the focal plane mount. The Lyot stop was accidentally mirrored with respect to the pupil and was not correctly scaled to the beam width. A new stop was designed and procured to address these issues and was deployed on SCExAO in February, 2022.
 
@@ -69,13 +69,19 @@ The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. W
 
 \subsection{Testbed results}\label{sec:testbed}
 
-Our first tests use the internal calibration source on SCExAO for determining the throughput, attenuation, and contrast of the coronagraph for each focal plane mask. 
+Our first tests use the internal calibration source on SCExAO for determining the throughput and contrast of the coronagraph for each focal plane mask. 
 
 \subsection{On-sky results}\label{sec:onsky}
 
 \section{Conclusions}\label{sec:conclusions}
 
-In this paper we have described the design, construction, and deployment of a visible-light Lyot coronagraph on SCExAO/VAMPIRES. 
+In this paper we have described the design, construction, and deployment of a visible-light Lyot coronagraph on SCExAO/VAMPIRES.
+
+In the future, as wavefront control improves for SCExAO, we want to explore phase-based focal plane masks such as the four-quadrant phase mask (4QPM)\cite{rouanFourQuadrantPhase2007}. Phase-based masks offer improved contrast over amplitude-based designs like the classic Lyot style, but are highly sensitive to pointing errors and thus require fine tip-tilt control for effective use\cite{huby2017}. We also are interested in exploring apodized Lyot stops for more precise attenuation of rejected light.
+
+\section*{Code and Data Availability}\label{sec:code}
+
+The code used for simulating the coronagraph (\autoref{sec:design}), reducing and analyzing testbed (\autoref{sec:testbed}) and on-sky data (\autoref{sec:onsky}), and for producing the figures in this paper are all available under an open-source license in a GitHub repository (\url{https://github.com/mileslucas/vampires-coronagraph}). The CAD drawings for the focal plane masks and Lyot stops are also available in the online repository. Further requests or questions about code or data are welcomed.
 
 %%%%% References %%%%%
 

@@ -1,4 +1,35 @@
 
+@article{guyonTheoreticalLimitsExtrasolar2006,
+  title = {Theoretical {{Limits}} on {{Extrasolar Terrestrial Planet Detection}} with {{Coronagraphs}}},
+  author = {Guyon, O. and Pluzhnik, E. A. and Kuchner, M. J. and Collins, B. and Ridgway, S. T.},
+  year = {2006},
+  month = nov,
+  journal = {The Astrophysical Journal Supplement Series},
+  volume = {167},
+  pages = {81--99},
+  issn = {0067-0049},
+  doi = {10.1086/507630},
+  abstract = {Many high-contrast coronagraph designs have recently been proposed. In this paper, their suitability for direct imaging of extrasolar terrestrial planets is reviewed. We also develop a linear algebra based model of coronagraphy that can both explain the behavior of existing coronagraphs and quantify the coronagraphic performance limit imposed by fundamental physics. We find that the maximum theoretical throughput of a coronagraph is equal to 1 minus the nonaberrated noncoronagraphic PSF of the telescope. We describe how a coronagraph reaching this fundamental limit may be designed, and how much improvement over the best existing coronagraph design is still possible. Both the analytical model and numerical simulations of existing designs also show that this theoretical limit rapidly degrades as the source size is increased: the ``highest performance'' coronagraphs, those with the highest throughput and smallest inner working angle (IWA), are the most sensitive to stellar angular diameter. This unfortunately rules out the possibility of using a small IWA ({$<\lambda$}/d) coronagraph for a terrestrial planet imaging mission. Finally, a detailed numerical simulation that accurately accounts for stellar angular size, zodiacal and exozodiacal light is used to quantify the efficiency of coronagraph designs for direct imaging of extrasolar terrestrial planets in a possible real observing program. We find that in the photon noise-limited regime, a 4 m telescope with a theoretically optimal coronagraph is able to detect Earth-like planets around 50 stars with 1 hr exposure time per target (assuming 25\% throughput and exozodi levels similar to our solar system). We also show that at least two existing coronagraph design can approach this level of performance in the ideal monochromatic case considered in this study.},
+  keywords = {Astrophysics,Stars: Planetary Systems,Techniques: High Anular Resolution,Telescopes},
+  annotation = {ADS Bibcode: 2006ApJS..167...81G},
+  file = {/Users/mileslucas/Zotero/storage/I53I6KWZ/Guyon et al_2006_Theoretical Limits on Extrasolar Terrestrial Planet Detection with Coronagraphs.pdf}
+}
+
+@article{huby2017,
+  title = {On-Sky Performance of the {{QACITS}} Pointing Control Technique with the {{Keck}}/{{NIRC2}} Vortex Coronagraph},
+  author = {Huby, E. and Bottom, M. and Femenia, B. and Ngo, H. and Mawet, D. and Serabyn, E. and Absil, O.},
+  year = {2017},
+  month = apr,
+  journal = {Astronomy and Astrophysics},
+  volume = {600},
+  pages = {A46},
+  issn = {0004-6361},
+  doi = {10.1051/0004-6361/201630232},
+  abstract = {Context. A vortex coronagraph is now available for high contrast observations with the Keck/NIRC2 instrument at L band. The vortex coronagraph uses a vortex phase mask in a focal plane and a Lyot stop in a downstream pupil plane to provide high contrast at small angular separations from the observed host star. {$<$}BR /{$>$} Aims: Reaching the optimal performance of the coronagraph requires fine control of the wavefront incident on the phase mask. In particular, centering errors can lead to significant stellar light leakage that degrades the contrast performance and prevents the observation of faint planetary companions around the observed stars. It is thus critical to correct for the possible slow drift of the star image from the phase mask center, generally due to mechanical flexures induced by temperature and/or gravity field variation, or to misalignment between the optics that rotate in pupil tracking mode. {$<$}BR /{$>$} Methods: A control loop based on the QACITS algorithm for the vortex coronagraph has been developed and deployed for the Keck/NIRC2 instrument. This algorithm executes the entire observing sequence, including the calibration steps, initial centering of the star on the vortex center, and stabilisation during the acquisition of science frames. {$<$}BR /{$>$} Results: On-sky data show that the QACITS control loop stabilizes the position of the star image down to 2.4 mas rms at a frequency of about 0.02 Hz. However, the accuracy of the estimator is probably limited by a systematic error due to a misalignment of the Lyot stop with respect to the entrance pupil, estimated to be on the order of 4.5 mas. A method to reduce the amplitude of this bias down to 1 mas is proposed. {$<$}BR /{$>$} Conclusions: The QACITS control loop has been successfully implemented and provides a robust method to center and stabilize the star image on the vortex mask. In addition, QACITS ensures a repeatable pointing quality and significantly improves the observing efficiency compared to manual operations. It is now routinely used for vortex coronagraph observations at Keck/NIRC2, providing contrast and angular resolution capabilities suited for exoplanet and disk imaging.},
+  langid = {english},
+  file = {/Users/mileslucas/Zotero/storage/MDSRX636/Huby et al. - 2017 - On-sky performance of the QACITS pointing control .pdf;/Users/mileslucas/Zotero/storage/SWA42ADE/abstract.html}
+}
+
 @article{por2018,
   title = {High {{Contrast Imaging}} for {{Python}} ({{HCIPy}}): An Open-Source Adaptive Optics and Coronagraph Simulator},
   shorttitle = {High {{Contrast Imaging}} for {{Python}} ({{HCIPy}})},
@@ -10,6 +41,24 @@
   doi = {10.1117/12.2314407},
   abstract = {HCIPy is a package written in Python for simulating the interplay between wavefront control and coronagraphic systems. By defining an element which merges values/coefficients with its sampling grid/modal basis into a single object called Field, this minimizes errors in writing the code and makes it clearer to read. HCIPy provides a monochromatic Wavefront and defines a Propagator that acts as the transformation between two wavefronts. In this way a Propagator acts as any physical part of the optical system, be it a piece of free space, a thin complex apodizer or a microlens array. HCIPy contains Fraunhofer and Fresnel propagators through free space. It includes an implementation of a thin complex apodizer, which can modify the phase and/or amplitude of a wavefront, and forms the basis for more complicated optical elements. Included in HCIPy are wavefront errors (modal, power spectra), complex apertures (VLT, Keck or Subaru pupil), coronagraphs (Lyot, vortex or apodizing phase plate coronagraph), deformable mirrors, wavefront sensors (Shack-Hartmann, Pyramid, Zernike or phase-diversity wavefront sensor) and multi-layer atmospheric models including scintillation). HCIPy aims to provide an easy-to-use, modular framework for wavefront control and coronagraphy on current and future telescopes, enabling rapid prototyping of the full high-contrast imaging system. Adaptive optics and coronagraphic systems can be easily extended to include more realistic physics. The package includes a complete documentation of all classes and functions, and is available as open-source software.},
   annotation = {ADS Bibcode: 2018SPIE10703E..42P}
+}
+
+@article{rouanFourQuadrantPhase2007,
+  title = {The {{Four Quadrant Phase Mask Coronagraph}} and Its Avatars},
+  author = {Rouan, Daniel and Baudrand, Jacques and Boccaletti, Anthony and Baudoz, Pierre and Mawet, Dimitri and Riaud, Pierre},
+  year = {2007},
+  month = apr,
+  journal = {Comptes Rendus Physique},
+  series = {Optical Techniques for Direct Imaging of Exoplanets},
+  volume = {8},
+  number = {3},
+  pages = {298--311},
+  issn = {1631-0705},
+  doi = {10.1016/j.crhy.2007.05.004},
+  abstract = {A renewal of interest into Lyot coronagraphy began about 10 years ago with the advent of the new and very demanding goal of detecting directly extrasolar planets. Among the new ideas, the Four Quadrant Phase Mask (4QPMC) has been rather prolific. The 4QPM coronagraph is based the peculiar design of binary phase mask (0,{$\pi$}) dividing the full field of view at the focal plane in four quadrants. The mutual destructive interferences of the coherent light of a source perfectly centered on the mask, produce a total nulling within the pupil image, as is demonstrated analytically. We first recall the concept and performance of the 4QPMC. We then analyse the different limitations in space or ground-based observations from simulations. We then address the issue of device manufacturing and give the status of the actual performance in laboratory. A section reviews the various instruments under development that are equipped with this component. We conclude with a panorama of the rest of the family of the 4QPMC, which comprises several variants proposed by different teams. More specifically we address the important question of the achromatization by describing the various ideas which are currently explored to solve this problem. Among them, some genuine ones, not yet published, are presented. To cite this article: D. Rouan et al., C. R. Physique 8 (2007). R\'esum\'e Un renouveau d'int\'er\^et pour la coronagraphie de Lyot s'est fait jour il y a environ 10 ans avec l'\'emergence du but nouveau mais tr\`es exigeant de d\'etecter directement les plan\`etes extrasolaires. Parmi les nouvelles id\'ees, celle du masque de phase \`a quatre quadrants (4QPMC) s'est montr\'ee assez prolifique. Le coronagraphe 4QPM est bas\'e sur le concept particulier d'un masque binaire de phase (0,{$\pi$}) divisant le champ dans le plan focal suivant quatre quadrants. Les interf\'erences destructives mutuelles de la lumi\`ere d'une source coh\'erente parfaitement centr\'ee sur le masque produit une annulation totale dans l'image de pupille, comme on le d\'emontre analytiquement. Nous rappelons d'abord le concept et les performances du 4QPMC. Nous analysons ensuite les diff\'erentes limitations des observations depuis l'espace ou du sol par des simulations, puis nous abordons la question de la fabrication du dispositif et donnons le statut des performances obtenues au laboratoire. Une revue est faite des instruments en cours de d\'eveloppement \'equip\'es de ce composant. Nous concluons avec un panorama du reste de la famille du 4QPMC qui comporte plusieurs variantes propos\'ees par diff\'erentes \'equipes. Plus sp\'ecifiquement nous traitons la question importante de l'achromatisation avec une description des diverses id\'ees qui sont actuellement explor\'ees pour r\'esoudre le probl\`eme. Parmi elles, quelques innovations, pas encore publi\'ees, sont pr\'esent\'ees. Pour citer cet article : D. Rouan et al., C. R. Physique 8 (2007).},
+  langid = {english},
+  keywords = {Coronagraphy,Coronographie,Détection directe,Direct detection,Exoplanet,Exoplanètes},
+  file = {/Users/mileslucas/Zotero/storage/IMXH7CUB/Rouan et al. - 2007 - The Four Quadrant Phase Mask Coronagraph and its a.pdf;/Users/mileslucas/Zotero/storage/T4Y5MDGH/S1631070507000850.html}
 }
 
 
