@@ -1,5 +1,34 @@
-%  spiejour.bib
-%  for SPIE journals
+% spiebib.bst  -  Version 3.33
+% for Proc. SPIE, remove comma between journal name and vol.
+% BibTeX bibliography style file for MaxEnt95
+% Essentially same as ieeetr.sty,
+% but with bold journal volume number,
+% no parentheses around editors,
+% and publisher/address fields reversed.
+%     July 3, 1995  (kmh)  Ken Hanson
+% In "inproceedings" allow 'journal' and avoid complaint
+% if 'booktitle' missing. 
+%     Dec. 10, 1997  (kmh)  Ken Hanson
+% In "inproceedings", 'series' produces the same output as previous 'journal'
+%     May 14, 2001 (hto)  Hwa-Tung Ong
+% Put 'volume' in bold after 'series' in "collection", "incollection", 
+%  and "inproceedings".
+%     Aug. 29, 2001  (kmh)  Ken Hanson
+%  insert ~ in volume bold line to avoid line break between journal and volume
+%     Jan. 23, 2006  (kmh)
+% Put book titles in brackets, date in parentheses, and remove pp.
+%     Jan 30, 2008, vers. 3.3  (kmh)  Ken Hanson
+%
+% IEEE Transactions bibliography style (29-Jan-88 version)
+%    numeric labels, order-of-reference, IEEE abbreviations,
+%    quotes around article titles, commas separate all fields
+%    except after book titles and before "notes".  Otherwise,
+%    much like the "plain" family, from which this is adapted.
+%
+%   History
+%    9/30/85	(HWT)	Original version, by Howard Trickey.
+%    1/29/88	(OP&HWT) Updated for BibTeX version 0.99a, Oren Patashnik;
+%			THIS `ieeetr' VERSION DOES NOT WORK WITH BIBTEX 0.98i.
 
 ENTRY
   { address
@@ -189,7 +218,7 @@ FUNCTION {emphasize}
   if$
 }
 
-FUNCTION {bold}             %% kmh - new function like emphasize
+FUNCTION {bold}                   %% kmh - new function like emphasize
 { duplicate$ empty$
     { pop$ "" }
     { "{\bf " swap$ * "}" * }
@@ -204,35 +233,24 @@ FUNCTION {format.names}
   s num.names$ 'numnames :=
   numnames 'namesleft :=
     { namesleft #0 > }
-    { s nameptr "{f.~}{vv~}{ll}{, jj}" format.name$ 't :=
+    { s nameptr "{vv~}{ll}{, jj}{, f.}" format.name$ 't :=   % last name first
+%%%kmh    { s nameptr "{f.~}{vv~}{ll}{, jj}" format.name$ 't :=
       nameptr #1 >
-    {
-      nameptr #3
-      #1 + =
-      numnames #3
-      > and
-      { "others" 't :=
-        #1 'namesleft := }
-      'skip$
-      if$
-      namesleft #1 >
-        { ", " * t * }
-            { s nameptr "{ll}" format.name$ duplicate$ "others" =
-                { 't := }
-                { pop$ }
-              if$
-              numnames #2 >
-                { "," * }
-                'skip$
-              if$
-              t "others" =
-                { " {\em et~al.}" * }
-                { " and " * t * }
-              if$
-            }
-          if$
-        }
-        't
+	{ namesleft #1 >
+	    { ", " * t * }
+	    { numnames #2 >
+		{ "," * }
+		'skip$
+	      if$
+	      t "others" =
+%%%kmh		{ " {\em et~al.}" * }
+		{ " et~al." * }
+		{ " and " * t * }
+	      if$
+	    }
+	  if$
+	}
+	't
       if$
       nameptr #1 + 'nameptr :=
       namesleft #1 - 'namesleft :=
@@ -252,8 +270,8 @@ FUNCTION {format.editors}
     { "" }
     { editor format.names
       editor num.names$ #1 >
-        { ", Eds." * }  % kmh06 - capitalize
-        { ", Ed." * }  % kmh06 - capitalize
+	{ ", eds." * }
+	{ ", ed." * }
       if$
     }
   if$
@@ -278,21 +296,21 @@ FUNCTION {n.dashify}
   ""
     { t empty$ not }
     { t #1 #1 substring$ "-" =
-        { t #1 #2 substring$ "--" = not
-            { "--" *
-              t #2 global.max$ substring$ 't :=
-            }
-            {   { t #1 #1 substring$ "-" = }
-                { "-" *
-                  t #2 global.max$ substring$ 't :=
-                }
-              while$
-            }
-          if$
-        }
-        { t #1 #1 substring$ *
-          t #2 global.max$ substring$ 't :=
-        }
+	{ t #1 #2 substring$ "--" = not
+	    { "--" *
+	      t #2 global.max$ substring$ 't :=
+	    }
+	    {   { t #1 #1 substring$ "-" = }
+		{ "-" *
+		  t #2 global.max$ substring$ 't :=
+		}
+	      while$
+	    }
+	  if$
+	}
+	{ t #1 #1 substring$ *
+	  t #2 global.max$ substring$ 't :=
+	}
       if$
     }
   while$
@@ -301,23 +319,27 @@ FUNCTION {n.dashify}
 FUNCTION {format.date}
 { year empty$
     { month empty$
-        { "" }
-        { "there's a month but no year in " cite$ * warning$
-          month
-        }
+	{ "empty year in " cite$ * warning$ }  %kmh check for year
+	{ "there's a month but no year in " cite$ * warning$
+	  month
+	}
       if$
     }
     { month empty$
-        { blank.sep year " (" swap$ * ")" *}  % kmh - prev= 'year 
-        { blank.sep year " (" swap$ * ")" *}  % kmh - avoid month, for now
-%dnw        { " (" * month " " * year * ")" *}  %% kmh - { month " " * year * }
+  { write$ " (" year * ")" *  
+    after.block 'output.state := }  %kmh date in parens
+	{ write$ " (" month * " " * year * ")" * 
+	  after.block 'output.state := }  %kmh date in parens
       if$
     }
   if$
 }
 
-FUNCTION {format.btitle}
+FUNCTION {format.btitle}  %kmh booktitles not in brackets
 { title emphasize
+}
+FUNCTION {format.bbtitle}  %kmh booktitle in brackets
+{ title emphasize " [" swap$ * "{\nolinebreak\hspace{0.1em}]}" *
 }
 
 FUNCTION {tie.or.space.connect}
@@ -340,8 +362,8 @@ FUNCTION {format.bvolume}
     { "" }
     { "vol.~" volume *
       series empty$
-        'skip$
-        { " of " * series emphasize * }
+	'skip$
+	{ " of " * series emphasize * }
       if$
       "volume and number" number either.or.check
     }
@@ -351,17 +373,17 @@ FUNCTION {format.bvolume}
 FUNCTION {format.number.series}
 { volume empty$
     { number empty$
-        { series field.or.null }
-        { output.state mid.sentence =
-            { "no.~" }
-            { "No.~" }
-          if$
-          number *
-          series empty$
-            { "there's a number but no series in " cite$ * warning$ }
-            { " in " * series * }
-          if$
-        }
+	{ series field.or.null }
+	{ output.state mid.sentence =
+	    { "no.~" }
+	    { "No.~" }
+	  if$
+	  number *
+	  series empty$
+	    { "there's a number but no series in " cite$ * warning$ }
+	    { " in " * series * }
+	  if$
+	}
       if$
     }
     { "" }
@@ -389,8 +411,8 @@ FUNCTION {multi.page.check}
       swap$ duplicate$ "," =
       swap$ "+" =
       or or
-        { #1 'multiresult := }
-        { t #2 global.max$ substring$ 't := }
+	{ #1 'multiresult := }
+	{ t #2 global.max$ substring$ 't := }
       if$
     }
   while$
@@ -401,8 +423,10 @@ FUNCTION {format.pages}
 { pages empty$
     { "" }
     { pages multi.page.check
-        { "" pages n.dashify * }  % kmh06 - remove "pp.~"
-        { "" pages * }  % kmh06 - remove "p.~"
+%%%kmh	{ "pp.~" pages n.dashify * }
+	{ " " pages n.dashify * }
+%%%kmh	{ "p.~" pages * }
+	{ " " pages * }
       if$
     }
   if$
@@ -423,7 +447,7 @@ FUNCTION {format.journal.volume.number}
   if$
   volume empty$      %% kmh - warning if no volume
     { "empty volume in " cite$ * warning$ " " *}
-    { " " * volume bold *}      %% kmh - make volume bold
+    { "~" * volume bold *}      %% kmh - make volume bold
 %%    { "vol.~" volume * }
   if$
   month empty$
@@ -462,12 +486,12 @@ FUNCTION {format.chapter.pages}
 { chapter empty$
     'format.pages
     { type empty$
-        { "ch.~" chapter * }
-        { type "l" change.case$ chapter tie.or.space.connect }
+	{ "ch.~" chapter * }
+	{ type "l" change.case$ chapter tie.or.space.connect }
       if$
       pages empty$
-        'skip$
-        { ", " * format.pages * }
+	'skip$
+	{ ", " * format.pages * }
       if$
     }
   if$
@@ -476,11 +500,11 @@ FUNCTION {format.chapter.pages}
 FUNCTION {format.in.ed.booktitle}
 { booktitle empty$
     { "" }
-    { " in " * booktitle emphasize * ", " *
+    { " in [" * booktitle emphasize * "{\nolinebreak\hspace{0.1em}]}, " *
        format.editors              %% editors without paren.
 %      editor empty$               %% ieeetr adds paren.
-%        'skip$
-%        { " (" * format.editors * ")" * }
+%	'skip$
+%	{ " (" * format.editors * ")" * }
 %      if$
     }
   if$
@@ -491,8 +515,8 @@ FUNCTION {format.thesis.type}
     'skip$
     { pop$
       output.state after.block =
-        { type "t" change.case$ }
-        { type "l" change.case$ }
+	{ type "t" change.case$ }
+	{ type "l" change.case$ }
       if$
     }
   if$
@@ -522,10 +546,23 @@ FUNCTION {format.addr.pub}        %% kmh - not used now
 { publisher empty$
     { "" }
     { address empty$
-        { "" }
-        { address ": " * }
+	{ "" }
+	{ address ", " * }     %kmh comma
       if$
       publisher *
+    }
+  if$
+}
+
+FUNCTION {format.pub.addr}        %% kmh - publisher, then address
+{ publisher empty$
+    { "" }
+    { address empty$
+	{ publisher }     %kmh comma
+%%%kmh	{ "" }
+	{ publisher ", " * address *}     %kmh comma
+      if$
+%%%kmh      address *
     }
   if$
 }
@@ -540,11 +577,11 @@ FUNCTION {format.paddress}
 FUNCTION {format.article.crossref}
 { key empty$
     { journal empty$
-        { "need key or journal for " cite$ * " to crossref " * crossref *
-          warning$
-          ""
-        }
-        { " in {\em " journal * "\/}" * }
+	{ "need key or journal for " cite$ * " to crossref " * crossref *
+	  warning$
+	  ""
+	}
+	{ " in {\em " journal * "\/}" * }
       if$
     }
     { " in " key * }
@@ -556,14 +593,16 @@ FUNCTION {format.crossref.editor}
 { editor #1 "{vv~}{ll}" format.name$
   editor num.names$ duplicate$
   #2 >
-    { pop$ " {\em et~al.}" * }
+%%%kmh    { pop$ " {\em et~al.}" * }
+    { pop$ " et~al." * }
     { #2 <
-        'skip$
-        { editor #2 "{ff }{vv }{ll}{ jj}" format.name$ "others" =
-            { " {\em et~al.}" * }
-            { " and " * editor #2 "{vv~}{ll}" format.name$ * }
-          if$
-        }
+	'skip$
+	{ editor #2 "{ff }{vv }{ll}{ jj}" format.name$ "others" =
+%%%kmh	    { " {\em et~al.}" * }
+	    { " et~al." * }
+	    { " and " * editor #2 "{vv~}{ll}" format.name$ * }
+	  if$
+	}
       if$
     }
   if$
@@ -582,15 +621,15 @@ FUNCTION {format.book.crossref}
   editor field.or.null author field.or.null =
   or
     { key empty$
-        { series empty$
-            { "need editor, key, or series for " cite$ * " to crossref " *
-              crossref * warning$
-              "" *
-            }
-            { "{\em " * series * "\/}" * }
-          if$
-        }
-        { key * }
+	{ series empty$
+	    { "need editor, key, or series for " cite$ * " to crossref " *
+	      crossref * warning$
+	      "" *
+	    }
+	    { "{\em " * series * "\/}" * }
+	  if$
+	}
+	{ key * }
       if$
     }
     { format.crossref.editor * }
@@ -603,16 +642,16 @@ FUNCTION {format.incoll.inproc.crossref}
   editor field.or.null author field.or.null =
   or
     { key empty$
-        { booktitle empty$
-            { "need editor, key, or booktitle for " cite$ * " to crossref " *
-              crossref * warning$
-              ""
-            }
-            { " in {\em " booktitle * "\/}" * }   
+	{ booktitle empty$
+	    { "need editor, key, or booktitle for " cite$ * " to crossref " *
+	      crossref * warning$
+	      ""
+	    }
+	    { " in {\em " booktitle * "\/}" * }   
 %% kmh - add space before 'in'
-          if$
-        }
-        { " in " key * }   %% kmh - add space before 'in'
+	  if$
+	}
+	{ " in " key * }   %% kmh - add space before 'in'
       if$
     }
     { " in " format.crossref.editor * }   
@@ -629,13 +668,13 @@ FUNCTION {article}
   crossref missing$
     { format.journal.volume.number output
       format.pages output
-      format.date "year" output.check
+      format.date 
     }
     { format.article.crossref output.nonnull
       format.pages output
     }
   if$
-new.block
+  new.block
   note output
   fin.entry
 }
@@ -646,26 +685,26 @@ FUNCTION {book}
     { format.editors "author and editor" output.check }
     { format.authors output.nonnull
       crossref missing$
-        { "author and editor" editor either.or.check }
-        'skip$
+	{ "author and editor" editor either.or.check }
+	'skip$
       if$
     }
   if$
-  format.btitle "title" output.check
+  format.bbtitle "title" output.check
   crossref missing$
     { format.bvolume output
 %%      new.block                %% ieeetr, kmh - remove period
       format.number.series output
-%%      format.addr.pub "publisher" output.check   %% ieeetr
-      publisher "publisher" output.check  %% kmh
-      address output
+      format.pub.addr "publisher" output.check   %% ieeetr
+%%%kmh      publisher "publisher" output.check  %% kmh
+%%%kmh      address output
     }
     { new.block
       format.book.crossref output.nonnull
     }
   if$
   format.edition output
-  format.date "year" output.check
+  format.date 
   new.block
   note output
   fin.entry
@@ -681,15 +720,16 @@ FUNCTION {booklet}
     { howpublished empty$ not
       address empty$ month empty$ year empty$ and and
       or
-        { format.title.p output.nonnull }
-        { format.title output.nonnull }
+%%%kmh	{ format.title.p output.nonnull }
+  { format.title output.nonnull }
+	{ format.title output.nonnull }
       if$
       blank.sep
     }
   if$
   howpublished output
   address output
-  format.date output
+  format.date
   new.block
   note output
   fin.entry
@@ -701,20 +741,20 @@ FUNCTION {inbook}
     { format.editors "author and editor" output.check }
     { format.authors output.nonnull
       crossref missing$
-        { "author and editor" editor either.or.check }
-        'skip$
+	{ "author and editor" editor either.or.check }
+	'skip$
       if$
     }
   if$
-  format.btitle "title" output.check
+  format.bbtitle "title" output.check
   crossref missing$
     { format.bvolume output
       format.chapter.pages "chapter and pages" output.check
-      new.block
+%%%kmh      new.block
       format.number.series output
-%%      format.addr.pub "publisher" output.check  %% ieeetr
-      publisher "publisher" output.check  %% kmh
-      address output
+      format.pub.addr "publisher" output.check  %% ieeetr
+%%%kmh      publisher "publisher" output.check  %% kmh
+%%%kmh      address output
     }
     { format.chapter.pages "chapter and pages" output.check
       new.block
@@ -722,7 +762,7 @@ FUNCTION {inbook}
     }
   if$
   format.edition output
-  format.date "year" output.check
+  format.date
   new.block
   note output
   fin.entry
@@ -739,11 +779,11 @@ FUNCTION {incollection}
 %%      format.number.series output
      format.series.volume.number output    %% kmh01
       format.chapter.pages output
-%%      format.addr.pub "publisher" output.check  %% ieeetr
-      publisher "publisher" output.check  %% kmh
-      address output
+      format.pub.addr "publisher" output.check  %% ieeetr
+%%      publisher "publisher" output.check  %% kmh
+%%      address output
       format.edition output
-      format.date "year" output.check
+      format.date
     }
     { format.incoll.inproc.crossref output.nonnull
       format.chapter.pages output
@@ -765,20 +805,21 @@ FUNCTION {inproceedings}
       journal empty$
 %%         {format.bvolume output        %% this is standard unsrt
 %%          format.number.series output
-          {format.series.volume.number output        %% hto01
+          {format.series.volume.number output	%% hto01
 %% moved below    format.paddress output
           format.pages output
-         }
+	 }
          {format.journal.volume.number output  
 
 %% add jour., vol.,and number
           format.pages output
-         }
-         if$
+	 }
+	 if$
       organization output
-      publisher output
-      format.paddress output       %% publ. address moved to here
-      format.date "year" output.check
+      format.pub.addr output  %%kmh "publisher" output.check  %% ieeetr
+%%%kmh      publisher output
+%%%kmh      format.paddress output       %% publ. address moved to here
+      format.date
     }
     { format.incoll.inproc.crossref output.nonnull
       format.pages output
@@ -795,10 +836,10 @@ FUNCTION {manual}
 { output.bibitem
   author empty$
     { organization empty$
-        'skip$
-        { organization output.nonnull
-          address output
-        }
+	'skip$
+	{ organization output.nonnull
+	  address output
+	}
       if$
     }
     { format.authors output.nonnull }
@@ -806,10 +847,10 @@ FUNCTION {manual}
   format.btitle "title" output.check
   author empty$
     { organization empty$
-        { address new.block.checka
-          address output
-        }
-        'skip$
+	{ address new.block.checka
+	  address output
+	}
+	'skip$
       if$
     }
     { organization address new.block.checkb
@@ -818,7 +859,7 @@ FUNCTION {manual}
     }
   if$
   format.edition output
-  format.date output
+  format.date
   new.block
   note output
   fin.entry
@@ -827,12 +868,12 @@ FUNCTION {manual}
 FUNCTION {mastersthesis}
 { output.bibitem
   format.authors "author" output.check
-  format.title "title" output.check
-  blank.sep
+  format.btitle "title" output.check
+%%%kmh  blank.sep
   "Master's thesis" format.thesis.type output.nonnull
   school "school" output.check
   address output
-  format.date "year" output.check
+  format.date
   new.block
   note output
   fin.entry
@@ -846,14 +887,14 @@ FUNCTION {misc}
     { howpublished empty$ not
       month empty$ year empty$ and
       or
-        { format.title.p output.nonnull }
-        { format.title output.nonnull }
+	{ format.title.p output.nonnull }
+	{ format.title output.nonnull }
       if$
       blank.sep
     }
   if$
   howpublished output
-  format.date output
+  format.date
   new.block
   note output
   fin.entry
@@ -864,11 +905,11 @@ FUNCTION {phdthesis}
 { output.bibitem
   format.authors "author" output.check
   format.btitle "title" output.check
-  new.block
+%%%kmh  new.block
   "PhD thesis" format.thesis.type output.nonnull
   school "school" output.check
   address output
-  format.date "year" output.check
+  format.date
   new.block
   note output
   fin.entry
@@ -880,17 +921,18 @@ FUNCTION {proceedings}
     { organization output }
     { format.editors output.nonnull }
   if$
-  format.btitle "title" output.check
+  format.bbtitle "title" output.check
 %%  format.bvolume output
 %%  format.number.series output
   format.series.volume.number output   %%kmh01
-  format.paddress output
+%%%kmh  format.paddress output
   editor empty$
     'skip$
     { organization output }
   if$
-  publisher output
-  format.date "year" output.check
+  format.pub.addr output
+%%%kmh  publisher output
+  format.date
   new.block
   note output
   fin.entry
@@ -904,7 +946,7 @@ FUNCTION {techreport}
   format.tr.number output.nonnull
   institution "institution" output.check
   address output
-  format.date "year" output.check
+  format.date
   new.block
   note output
   fin.entry
@@ -913,10 +955,11 @@ FUNCTION {techreport}
 FUNCTION {unpublished}
 { output.bibitem
   format.authors "author" output.check
-  format.title.p "title" output.check
+%%%kmh  format.title.p "title" output.check
+  format.title "title" output.check
   blank.sep
   note "note" output.check
-  format.date output
+  format.date
   fin.entry
 }
 

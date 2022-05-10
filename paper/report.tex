@@ -1,12 +1,23 @@
-\documentclass[12pt]{spieman}  % 12pt font required by SPIE;
-%\documentclass[a4paper,12pt]{spieman}  % use this instead for A4 paper
-\usepackage{amsmath,amsfonts,amssymb}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{setspace}
-\usepackage{tocloft}
+\documentclass[]{spie}  %>>> use for US letter paper
+%\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
+%\documentclass[nocompress]{spie}  %>>> to avoid compression of citations
 
-\title{Visible-light Lyot coronagraph for SCExAO/VAMPIRES}
+\renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[caption = false]{subfig}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{mwe}
+
+% Option to view page numbers
+\pagestyle{empty} % change to \pagestyle{plain} for page numbers
+
+%%%%% Authors %%%%%
+
+\title{Visible-light Lyot Coronagraph for SCExAO/VAMPIRES}
 
 \author[a,*]{Miles Lucas}
 \author[a]{Michael Bottom}
@@ -18,23 +29,22 @@
 \affil[c]{Steward Observatory, Unviersity of Arizona, 933 N. Cherry Ave., Tucson, AZ 85721, USA}
 \affil[d]{Sydney Institute for Astronomy, School of Physics, Physics Rd., University of Sydney, NSW 2006, Australia}
 
-\renewcommand{\cftdotsep}{\cftnodots}
-\cftpagenumbersoff{figure}
-\cftpagenumbersoff{table} 
-\begin{document} 
+\authorinfo{Further author information: (Send correspondence to M.D.L.)\\M.D.L.: E-mail: mdlucas@hawaii.edu}
+
+\begin{document}
 \maketitle
 
-\begin{abstract}
+%%%%% Abstract %%%%%
 
+\begin{abstract}
+Limit 250 words.
 \end{abstract}
 
-% Include a list of up to six keywords after the abstract
-\keywords{optics, coronagraph, light, optical, visible, high-contrast}
+%%%%% Keywords %%%%%
 
-% Include email contact information for corresponding author
-{\noindent \footnotesize\textbf{*}Miles Lucas,  \linkable{mdlucas@hawaii.edu}}
+\keywords{Coronagraph, Optical, Visible, High-Contrast, Imaging, Exoplanets}
 
-\begin{spacing}{2}   % use double spacing for rest of manuscript
+%%%%% Main body %%%%%
 
 \section{Introduction}\label{sec:intro}
 
@@ -44,13 +54,22 @@ Coronagraphy is a well-established technique for imaging circumstellar regions b
 
 \subsection{Designing the Coronagraph}\label{sec:design}
 
-We used the open-source python package \texttt{HCIPy}\cite{por2018} for simulating our coronagraph design with Fourier optics. We defined our wavefronts on a rasterized image of the SCExAO pupil sampled on a 256x256 pixel grid. Initially, we do not introduce any wavefront errors. Using a Fraunhofer propagator with an F/28.4 focal ratio, we formed the intermediate focal plane, where the focal plane mask will be inserted. The focal plane masks are hard-edged circles, and were modeled using a circular apodizer with either 0\% or 0.1\% transmission. We designed four focal plane masks with radii of 36, 54, 90, and 126 mas, respectively. These radii correspond to $\sim$2, 3, 5, and 7 $\lambda/D$ at 750 nm. The focal plane after the mask was propagated to the next pupil plane, where the Lyot stop will be inserted. 
+We used the open-source python package \texttt{HCIPy}\cite{por2018} for simulating our coronagraph design with Fourier optics. We defined our wavefronts on a rasterized image of the SCExAO pupil sampled on a 256x256 pixel grid. Initially, we do not introduce any wavefront errors. Using a Fraunhofer propagator with an F/28.4 focal ratio, we formed the intermediate focal plane, where the focal plane mask will be inserted. The focal plane masks are hard-edged circles, and were modeled using a circular apodizer with either 0\% or 0.1\% transmission. We designed four focal plane masks with radii of 36, 54, 90, and 126 mas, respectively. These radii correspond to $\sim$2, 3, 5, and 7 $\lambda/D$ at 750 nm. The focal plane after the mask was propagated to the next pupil plane, where the Lyot stop will be inserted.
 
 The Lyot stop was modeled using a series of circular and rectangular apodizers with 0\% transmission. The stop design follows the shape of the SCExAO pupil with an undersized diameter and oversized obstructions. The outer diameter is 90\% the clear aperture diameter, the inner obstruction is 45\% the clear aperture diameter (the secondary obstruction is $\sim$31\% the clear aperture diameter), the secondary support struts are 200\% as wide, and the bad deformable mirror probes are 150\% in size. The ratio of areas of the Lyot stop and the SCExAO pupil is 63.7\%. This final wavefront was propagated to the detector focal plane, forming the post-coronagraphic point-spread function.
 
 We repeated the above process for a series of wavelengths to approximate a broadband PSF. We summed the images produced with 10 wavefronts from 725 nm to 775 nm to mimic the ``750-50'' filter (750 nm central wavelength with 50 nm uniform bandpass). We chose this filter because it has the highest throughput. As an additional step, we generated many datasets with random tip and tilt errors sampled from a bivariate Gaussian with 10 mas RMS jitter to test the coronagraph's resiliency to low-order wavefront errors.
 
 We evaluated the performance and quality of our simulations from the radial profiles of the unobstructed PSF and the post-coronagraphic PSF.
+
+\begin{figure*}[h!]
+   \centering
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}\\
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \caption{Simulated contrast and throughput curves for each mask size}\label{fig:sim-contrast}
+\end{figure*}
 
 \subsection{Construction and Installation}\label{sec:install}
 
@@ -65,13 +84,44 @@ The Lyot stop was deposited onto a 25 mm optical flat (\href{https://www.edmundo
 
 The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. We decided to only install the four  transmissive (0.1\%) focal plane masks given the limited number of slots in the focal plane mount. The Lyot stop was accidentally mirrored with respect to the pupil and was not correctly scaled to the beam width. A new stop was designed and procured to address these issues and was deployed on SCExAO in February, 2022.
 
+\begin{figure*}[h!]
+   \centering
+   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}
+   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}
+   \caption{(a) the focal plane mask holder (b) the Lyot stop}\label{fig:optics}
+\end{figure*}
+
+\subsection{Operation and Characterization}\label{sec:tests}
+
+\begin{figure*}[h!]
+   \centering
+   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}
+   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}
+   \caption{``Astrogrid'' calibration speckles (a) on bench (b) on sky}\label{fig:satellite-spots}
+\end{figure*}
+
 \section{Results}\label{sec:results}
 
 \subsection{Testbed results}\label{sec:testbed}
 
-Our first tests use the internal calibration source on SCExAO for determining the throughput and contrast of the coronagraph for each focal plane mask. 
+Our first tests use the internal calibration source on SCExAO for determining the throughput and contrast of the coronagraph for each focal plane mask.
+
+\begin{figure*}[h!]
+   \centering
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}\\
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \subfloat{\includegraphics[width=0.45\textwidth,height=2in]{example-image-empty}}
+   \caption{Contrast and throughput curves for each mask size}\label{fig:contrast}
+\end{figure*}
 
 \subsection{On-sky results}\label{sec:onsky}
+
+\begin{figure*}[h!]
+   \centering
+   \subfloat{\includegraphics[width=0.7\textwidth,height=2.2in]{example-image-empty}}
+   \caption{Contrast curve for 3$\lambda$/D mask in average seeing of HDXXXXXX}\label{fig:onsky-contrast}
+\end{figure*}
 
 \section{Conclusions}\label{sec:conclusions}
 
@@ -79,24 +129,22 @@ In this paper we have described the design, construction, and deployment of a vi
 
 In the future, as wavefront control improves for SCExAO, we want to explore phase-based focal plane masks such as the four-quadrant phase mask (4QPM)\cite{rouanFourQuadrantPhase2007}. Phase-based masks offer improved contrast over amplitude-based designs like the classic Lyot style, but are highly sensitive to pointing errors and thus require fine tip-tilt control for effective use\cite{huby2017}. We also are interested in exploring apodized Lyot stops for more precise attenuation of rejected light.
 
-\section*{Code and Data Availability}\label{sec:code}
+%%%%% Appendix %%%%%
 
-The code used for simulating the coronagraph (\autoref{sec:design}), reducing and analyzing testbed (\autoref{sec:testbed}) and on-sky data (\autoref{sec:onsky}), and for producing the figures in this paper are all available under an open-source license in a GitHub repository (\url{https://github.com/mileslucas/vampires-coronagraph}). The CAD drawings for the focal plane masks and Lyot stops are also available in the online repository. Further requests or questions about code or data are welcomed.
+\appendix    %>>>> this command starts appendixes
+
+
+\section{Code and Data Availability}\label{sec:code}
+
+The code used for simulating the coronagraph (\autoref{sec:design}), reducing and analyzing testbed (\autoref{sec:testbed}) and on-sky data (\autoref{sec:onsky}), and for producing the figures in this paper are all available under an open-source license in a GitHub repository (\href{https://github.com/mileslucas/vampires-coronagraph}{mileslucas/vampires-coronagraph}). The CAD drawings for the focal plane masks and Lyot stops are also available in the online repository. Further requests or questions about code or data are welcomed.
+
+\acknowledgments
+
+
 
 %%%%% References %%%%%
 
-\bibliography{report}   % bibliography data in report.bib
-\bibliographystyle{spiejour}   % makes bibtex use spiejour.bst
+\bibliography{report} % bibliography data in report.bib
+\bibliographystyle{spiebib} % makes bibtex use spiebib.bst
 
-%%%%% Biographies of authors %%%%%
-
-\vspace{2ex}\noindent\textbf{Miles Lucas} is a Ph.D. candidate in astronomy at the Institute for Astronomy in Hawai'i. He earned his B.S. in physics from Iowa State University in 2019 and his M.S. in astronomy from the University of Hawai'i in 2021. His research interests are in high-contrast imaging- including instrument development, image-processing techniques, and statistical modeling.
-
-\vspace{1ex}
-\noindent Biographies and photographs of the other authors are not available.
-
-\listoffigures
-\listoftables
-
-\end{spacing}
 \end{document}
