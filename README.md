@@ -14,4 +14,6 @@ Set up the environment using poetry
 $ poetry install
 ```
 
-## Usage
+## HCIPy Simulations
+
+The 

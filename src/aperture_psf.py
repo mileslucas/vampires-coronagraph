@@ -11,7 +11,11 @@ from lyot import (
     create_grids,
     make_wavefront,
 )
-from paths import figuredir, datadir
+from paths import rootdir
+
+
+pro.rc["legend.facecolor"] = "0.90"
+pro.rc["font.name"] = "Times New Roman"
 
 def add_noise(image):
     noise = poisson(image)
@@ -53,14 +57,14 @@ def plot(pupil, psf):
     m = hp.imshow_field(
         psf_norm,
         focal_grid,
-        vmin=-8,
+        vmin=-6,
         grid_units=fpm_units,
         ax=axes[1],
         cmap="magma"
     )
     axes[1].format(
-        xlabel="x [arcsec]",
-        ylabel="y [arcsec]",
+        xlabel="x [\"]",
+        ylabel="y [\"]",
     )
     # add circles
     radii = np.array([2, 3, 5, 7])
@@ -77,7 +81,7 @@ def plot(pupil, psf):
         grid=False,
     )
     fig.colorbar(m, loc="r", label="log10(norm. intensity)")
-    fig.savefig(figuredir("aperture_psf.pdf"))
+    fig.savefig(rootdir("paper", "figures", "aperture_psf.pdf"))
     pro.close(fig)
 
 if __name__ == "__main__":
