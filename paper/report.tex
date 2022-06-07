@@ -74,12 +74,12 @@ The Lyot stop was modeled using a series of circular and rectangular apodizers w
 
 We repeated the above process for a series of wavelengths to approximate a broadband PSF. We summed the images produced with 10 wavefronts from 725 nm to 775 nm to mimic the ``750-50'' filter (750 nm central wavelength with 50 nm uniform bandpass). We chose this filter because it has the highest throughput. As an additional step, we generated many datasets with random tip and tilt errors sampled from a bivariate Gaussian with 10 mas RMS jitter to test the coronagraph's resiliency to low-order wavefront errors. 10 mas is around the 90th percentile of expected tip-tilt performance on SCExAO, however we find it appropriate since VAMPIRES often operates in lucky imaging mode where tip-tilt errors are alleviated via shift-and-add image processing techniques.
 
-We evaluated the performance and quality of our simulations from the raw contrast curves of each mask \autoref{fig:sim-contrast}. These curves show the 5$\sigma$ detection thresholds (accounting for small sample statistics\cite{mawet2014}) without tip-tilt jitter and without any PSF subtraction. The curves use a robust scale estimator (biweight middeviance) and are normalized by the non-coronagraphic PSF.
+We evaluated the performance and quality of our simulations from the raw contrast curves of each mask \autoref{fig:sim-contrast}. These curves show the 5$\sigma$ detection thresholds (accounting for small sample statistics\cite{mawet2014}) without tip-tilt jitter and without any PSF subtraction. The curves use a robust scale estimator (biweight middeviance) and are normalized by the non-coronagraphic PSF. We used the open-source package \texttt{ADI.jl}\cite{lucas2020} for creating these contrast curves.
 
 \begin{figure*}
    \centering
    \includegraphics[width=0.95\textwidth]{figures/simulated_curves}
-   \caption{Raw 5$\sigma$ contrast curves for an unocculted PSF (black line) and for each focal plane mask size (orange to purple lines). These curves are calculated from images simulated with \texttt{HCIPy}. The mask inner working angles are marked by vertical dotted lines}\label{fig:sim-contrast}
+   \caption{Simulated raw 5$\sigma$ contrast curves for an unocculted PSF (black line) and for each focal plane mask size (orange to purple lines). These curves are calculated from images simulated with \texttt{HCIPy}. The mask inner working angles are marked by vertical dotted lines}\label{fig:sim-contrast}
 \end{figure*}
 
 \subsection{Construction and Installation}\label{sec:install}
@@ -93,28 +93,27 @@ where $\hat{s}$ is the thickness, $\lambda$ is the wavelength (tested across the
 
 The Lyot stop was deposited onto a 25 mm AR-coated optical flat (\href{https://www.edmundoptics.com/p/25mm-dia-3mm-thick-nir-i-coated-lambda10-fused-silica-window/27561/}{Edmund Optics \#84-465}) with no further processing. We designed the Lyot stop to be reflective for the purposes of alignment and low-order wavefront sensing from the rejected light. We chose gold on its first surface for its high reflectivity ($>$90\%) across the 600-800 nm wavelength range. Following advice from our vendor, this gold layer was deposited on top of a layer of chromium which adheres better to AR coatings than gold. We used \autoref{eqn:throughput} with a linear combination of 50\% chromium and 50\% gold to determine a combined thickness of 285 nm for 1e-8 transmission. The final thickness of the chromium and gold deposit was specified as 300 nm.
 
-The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. We decided to only install the four  transmissive (0.1\%) focal plane masks given the limited number of slots in the focal plane mount. The Lyot stop was accidentally mirrored with respect to the pupil and was not correctly scaled to the beam width. A new stop was designed and procured to address these issues and was deployed on SCExAO in February, 2022.
+The focal plane masks and Lyot stop were installed on SCExAO in January, 2022. We decided to only install the four  transmissive (0.1\%) focal plane masks given the limited number of slots in the focal plane mount (\autoref{fig:optics}). The Lyot stop was accidentally mirrored with respect to the pupil and was not correctly scaled to the beam width. A new stop was designed and procured to address these issues and was deployed on SCExAO in February, 2022.
 
 \begin{figure*}
    \centering
    \subfloat{\includegraphics[width=2.5in]{figures/fpm.jpeg}}\hspace{0.5in}
    \subfloat{\includegraphics[width=2.5in]{figures/lyot_stop.jpeg}}
-   \caption{(a) The four focal plane masks mounted in the custom-machined focal plane mount for VAMPIRES. The size of each square is 8 mm x 8 mm. (b) The undersized Lyot stop with its reflective gold coating. The dimater of the glass substrate and stop outer diameter are marked.}\label{fig:optics}
+   \caption{(a) The four focal plane masks mounted in the custom-machined focal plane mount for VAMPIRES. The size of each square is 8 mm x 8 mm. (b) The undersized Lyot stop with its reflective gold coating. The diameter of the glass substrate and stop outer diameter are marked.}\label{fig:optics}
 \end{figure*}
 
 \section{Operation and Characterization}\label{sec:tests}
 
-Both the focal plane masks and Lyot stop are installed in mounts with precise motor controllers for alignment. We found that the Lyot stop, being in the collimated beam, stays consistently aligned in-between instrument cranings (see Lozi Subaru beamsplitter paper). The focal plane masks take around a minute to manually align using a text user interface (TUI) on a high signal to noise ratio target. In addition, because the focal plane masks introduces refractive material in a converging beam, the focal point of the instrument shifts and an automatic focus measurement is performed with an offset focal plane mask before use.
+Both the focal plane masks and Lyot stop are installed in mounts with precise motor controllers for alignment. We found that the Lyot stop, being in the collimated beam, stays consistently aligned in-between instrument cranings. The focal plane masks take around a minute to manually align using a text user interface (TUI) on a high signal to noise ratio target. In addition, because the focal plane masks introduces refractive material in a converging beam, the focal point of the instrument shifts and an automatic focus measurement is performed with an offset focal plane mask before use.
 
 \subsection{Artifical Calibration Speckles (``Astrogrid'')}
 
-A common problem with coronagraphic imaging is accurately determing the flux and position of the host star while behind the focal plane mask. By adding sinusoidal patterns to the deformable mirror (DM) copies of the stellar PSF will appear off-axis depending on the frequency of the sinusoidal pattern\cite{sahoo2020}. These patterns are modulated in two ways: first the patterns are modulated spatially by half a wavelength to average effects of atmospheric seeing on the speckles during a typical integration. Second, the pattern is spatially modulated to create alternating sets of two PSFs, for a total of four calibration speckles equidistant from the star. The brightness of these ``satellite spots'' is proportional to the amplitude of the DM perturbation, which can be calibrated to give accurate relative photometry between the spots and the star. SCExAO/CHARIS has sucessfully demonstrated this method with astrometric precision $\sim$1.7 mas and photometric precision $\sim$0.3\%\cite{currie2020}. Examples of the ``astrogrid'' on VAMPIRES are shown in \autoref{fig:satellite-spots}.
+A common problem with coronagraphic imaging is accurately determing the flux and position of the host star while behind the focal plane mask. By adding sinusoidal patterns to the deformable mirror (DM) copies of the stellar PSF will appear off-axis depending on the frequency of the sinusoidal pattern\cite{sahoo2020}. These patterns are modulated in two ways: first the patterns are modulated spatially by half a wavelength to average effects of atmospheric seeing on the speckles during a typical integration. Second, the pattern is spatially modulated to create alternating sets of two PSFs, for a total of four calibration speckles equidistant from the star. The brightness of these ``satellite spots'' is proportional to the amplitude of the DM perturbation, which can be calibrated to give accurate relative photometry between the spots and the star. This method has been successfully demonstrated on SCExAO/CHARIS with astrometric precision $\sim$1.7 mas and photometric precision $\sim$0.3\%\cite{currie2020}. Examples of the ``astrogrid'' on VAMPIRES are shown in \autoref{fig:satellite-spots}.
 
 \begin{figure*}
    \centering
-   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}\hspace{0.1in}
-   \subfloat{\includegraphics[width=3in, height=3in]{example-image-empty}}
-   \caption{``Astrogrid'' calibration speckles (a) on bench (b) on sky}\label{fig:satellite-spots}
+   \includegraphics[width=\textwidth]{figures/astrogrid_psf}
+   \caption{Coronagraphic data using the CLC-5 mask (91 mas IWA) with  50 nm ``astrogrid'' calibration speckles. (a) Testbed data using the internal source with the 750-50 filter, 110 EM gain, and 20 ms exposures. (b) On sky data of HIP 56083 from May 25, 2022 in poor seeing ($\sim$1.6"), using the 750-50 filter, 300 EM gain, and 200 ms exposures.}\label{fig:satellite-spots}
 \end{figure*}
 
 \subsection{Coronagraphic throughput}
@@ -134,22 +133,22 @@ The off-axis coronagraphic throughput was measured by gradually moving the mask 
 
 \subsection{Testbed results}\label{sec:testbed}
 
-Our first tests use the calibration source on SCExAO for determining the contrast of the coronagraph for each focal plane mask. For these tests we used the 750-50 filter since it has the highest throughput. In addition, for all tests we applied an astrogrid with 50 nm amplitude with a spatial frequency of XX\todo{find out this number}, which roughly corresponds to $\sim$15.9$\lambda/D$. We used an EM gain of 300 with optical neutral-density filters when appropriate to avoid saturating the EM-CCDs.
+Our first tests use the calibration source on SCExAO for determining the contrast of the coronagraph for each focal plane mask. For these tests we used the 750-50 filter since it has the highest throughput. In addition, for all tests we applied an astrogrid with 50 nm amplitude with a spatial frequency of 15.5 $\lambda/D$ (308 mas).
 
-First, we took non-coronagraphic data allowing us to characterize both the photometry and astrometry of the astrogrid speckles as well as giving a non-coroangraphic PSF for measuring the relative attenuation from the focal plane masks. For data reduction, we used a series of 1000 images median-combined before analysis. For the astrogrid calibration, we used a hierarchical model of five two-dimensional Moffat functions
+First, we took non-coronagraphic data allowing us to characterize both the photometry and astrometry of the astrogrid speckles as well as giving a non-coroangraphic PSF for measuring the relative attenuation from the focal plane masks. For data reduction, we used a series of 100 images median-combined before analysis. For the astrogrid calibration, we used a hierarchical model of five two-dimensional Moffat functions
 \begin{equation}
    \label{eqn:moffat}
-   f(x, y | x_0, y_0, \Gamma, \alpha, I_0) = I_0 \left[1 + \frac{\sqrt{\left(x-x_0\right)^2 + \left(y-y_0\right)^2}}{\Gamma} \right]^{-\alpha}
+   f(x, y | x_0, y_0, \Gamma, \alpha, I_0) = I_0 \left[1 + \frac{\left(x-x_0\right)^2 + \left(y-y_0\right)^2}{\Gamma^2} \right]^{-\alpha}
 \end{equation}
-where $(x_0, y_0)$ is the center of the PSF, $I_0$ is the peak amplitude, $\Gamma$ is the half-width at half-maximum (HWHM), and $\alpha$ is the exponential scaling factor, typically close to unity. In our hierarchical model each PSF shares the $\Gamma$ and $\alpha$ parameters, and each of the four satellite spots share an amplitude. From this model, we determined the relative photometry of the 50 nm amplitude astrogrid to be XX and the radial offset to be XX $\lambda/D$.\todo{astrogrid results}
+where $(x_0, y_0)$ is the center of the PSF, $I_0$ is the peak amplitude, $\Gamma$ is the half-width at half-maximum (HWHM), and $\alpha$ is the exponential scaling factor, typically around 1 to 3. In our hierarchical model each PSF shares the $\Gamma$ and $\alpha$ parameters, and each of the four satellite spots share an amplitude. Around each PSF we measured the photometry using circular apertures with background subtraction from annular apertures. From this the relative photometry of the 50 nm amplitude astrogrid was $10^{-1.52}$.
 
-Then, we inserted the Lyot stop and focal plane masks, refocused by offsetting the mask, then centered the mask by hand. Again, we took series of 1000 images and median-combined them before processing the contrast. To measure the photometry, which has changed from the non-coronagraphic PSF due to the insertion of the Lyot stop, we fit a hierarchical model of four two-dimension Moffat functions (\autoref{eqn:moffat}). This follows the same procedure as above with shared shape parameters and intensity, but this time the stellar PSF itself is not fit. Then, we measure the photometry of each satellite spot using circular apertures with radii of $5\cdot\Gamma$ ($2.5\cdot$FWHM) and scaled using the relative intensity fit in our non-coronagraphic data.
+Then, we inserted the Lyot stop and focal plane masks, refocused by offsetting the mask, then centered the mask by hand. Again, we took series of 100 images and median-combined them before measuring the raw contrast. To measure the photometry, which has changed from the non-coronagraphic PSF due to the insertion of the Lyot stop, we fit a hierarchical model of four two-dimension Moffat functions (\autoref{eqn:moffat}). This follows the same procedure as above with shared shape parameters and intensity, but this time the on-axis PSF is not fit. Then, we measure the photometry of each satellite spot using circular apertures with annuli for background subtraction. The stellar flux is estimated by the median flux of each satellite spot scaled by the relative photometry fit above ($10^{-1.52}$).
 
 
 \begin{figure*}
    \centering
-   \includegraphics[width=0.8\textwidth,height=2.6in]{example-image-empty}
-   \caption{Contrast and throughput curves for each mask size}\label{fig:contrast}
+   \includegraphics[width=0.9\textwidth]{figures/bench_20220526_curves}
+   \caption{Raw 5$\sigma$ testbed contrast curves accounting for small-sample statistics. The black curve is the non-coronagraphic contrast, while the orange through purple curves correspond to each focal plane mask. The IWA for each curve is marked with a dotted vertical line. The location of the astrogrid speckles is marked with a gray vertical line.}\label{fig:contrast}
 \end{figure*}
 
 \subsection{On-sky results}\label{sec:onsky}
