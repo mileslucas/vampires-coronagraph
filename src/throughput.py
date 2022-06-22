@@ -25,9 +25,6 @@ expected = (35, 52, 90, 127)
 focal_length = 200 # 200 mm
 magnification = 7.79 / 7.032e-3
 
-def logistic(x, x0, k):
-    return 1 / (np.exp(-k * (x - x0)) + 1)
-
 for i, datum in enumerate(data):
     offset_mas = np.rad2deg(datum["offsets"] / focal_length / magnification) * 3.6e6
     # correct so maximum is 1
@@ -37,14 +34,11 @@ for i, datum in enumerate(data):
     extent = factor - datum["throughput"].min()
     through = (datum["throughput"] - datum["throughput"].min()) / extent
 
-    # fit logistic function
-    popt, pcov = curve_fit(logistic, offset_mas, through, p0=[50, 1])
-
-    line_fit = logistic(offset_mas, *popt)
+    # interpolate
+    iwa = np.interp(0.5, through, offset_mas)
     
-    axes.plot(offset_mas, line_fit, c="0.8")
-    axes.axvline(popt[0], c=colors[i]["color"], ls=":")
-    axes.plot(offset_mas, through, c=colors[i]["color"], label=labels[i] + f" ({popt[0]:.0f} mas)")
+    axes.axvline(iwa, c=colors[i]["color"], ls=":")
+    axes.plot(offset_mas, through, c=colors[i]["color"], label=labels[i] + f" ({iwa:.0f} mas)")
 
 axes.axhline([0.5], c="0.3", ls="--")
 axes[0].legend(loc="t", ncols=2)
