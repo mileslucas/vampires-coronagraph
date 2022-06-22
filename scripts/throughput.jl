@@ -9,7 +9,7 @@ datadir(args...) = joinpath(@__DIR__, "..", "data", "throughput", args...)
 filenames = [
     datadir("CLC_throughput_750-50_EmptySlot2_1_cam1.fits"), # Open
     datadir("CLC_throughput_750-50_EmptySlot2_0_cam1.fits"), # offset FPM
-    datadir("CLC_throughput_750-50_LyotStop_0_cam1.fits") # Lyot
+    datadir("CLC_throughput_750-50_LyotStop_0_cam1.fits"), # Lyot
 ]
 
 cubes = map(filenames) do filename
@@ -18,7 +18,8 @@ cubes = map(filenames) do filename
 end
 
 collapsed = map(cubes) do cube
-    lucky_image(cube; dims=3, q=0, register=:dft, upsample_factor=10, shift_reference=true)
+    lucky_image(cube; dims = 3, q = 0, register = :dft, upsample_factor = 10,
+                shift_reference = true)
 end
 
 for (filename, frame) in zip(filenames, collapsed)
@@ -27,7 +28,7 @@ for (filename, frame) in zip(filenames, collapsed)
 end
 
 results = map(collapsed) do frame
-    init = (;x=256.5, y=256.5, amp=maximum(frame), bkg=200, fwhm=4, ratio=0.4)
+    init = (; x = 256.5, y = 256.5, amp = maximum(frame), bkg = 200, fwhm = 4, ratio = 0.4)
     window = (246:266, 246:266)
     fit = PSFModels.fit(airydisk, init, frame, window)
     return fit[1]

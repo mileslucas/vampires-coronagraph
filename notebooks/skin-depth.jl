@@ -6,13 +6,13 @@ using InteractiveUtils
 
 # ╔═╡ eade1b24-0608-11ec-2c93-abfde494572f
 begin
-	using Markdown
-	using Plots
-	using Printf
-	using Statistics
-	using Unitful
-	using Unitful: c0, μ0
-	using UnitfulRecipes
+    using Markdown
+    using Plots
+    using Printf
+    using Statistics
+    using Unitful
+    using Unitful: c0, μ0
+    using UnitfulRecipes
 end
 
 # ╔═╡ 2cdfd99e-c42f-4db6-9287-efd531959ca3
@@ -63,7 +63,7 @@ thickness(attenuation, λ; kwargs...) = -penetration_depth(λ; kwargs...) * log(
 attenuation(thickness, λ; kwargs...) = exp(-thickness / penetration_depth(λ; kwargs...))
 
 # ╔═╡ af3c388b-4297-4542-9202-ed467b72aadb
-λ = range(600, 800, length=100)u"nm"
+λ = range(600, 800, length = 100)u"nm"
 
 # ╔═╡ c702f78b-3cf0-4fd3-ba6b-ee41beb57c2c
 md"""
@@ -78,32 +78,27 @@ penetration_depth(700u"nm"; Au...) |> u"nm"
 
 # ╔═╡ 6d878fb2-9c75-4b4e-8195-875189fca6ad
 let thicknesses, trans, ts, mean_trans, mean_thick
-	thicknesses = range(0, 60, length=101)u"nm"
-	heatmap(
-		thicknesses, λ, (t,l) -> log10(attenuation(t, l; Au...)),
-		c=:inferno,
-		xlabel="thickness",
-		ylabel="λ",
-		title="Gold (Au)",
-		cbtitle="log10(transmission)",
-		leg=:topleft
-	)
-	trans = 1e-10
-	ts = @. thickness(trans, λ; Au...) |> u"nm"
-	plot!(
-		ts, λ,
-		label=@sprintf("%.1e", trans),
-		c=:black,
-		lw=2,
-		xlim=extrema(thicknesses),
-		ylim=extrema(λ)
-	)
-	mean_thick = mean(ts)
-	vline!([mean_thick],
-		c=:black,
-		ls=:dash,
-		label=round(u"nm", mean_thick, digits=1)
-	)
+    thicknesses = range(0, 60, length = 101)u"nm"
+    heatmap(thicknesses, λ, (t, l) -> log10(attenuation(t, l; Au...)),
+            c = :inferno,
+            xlabel = "thickness",
+            ylabel = "λ",
+            title = "Gold (Au)",
+            cbtitle = "log10(transmission)",
+            leg = :topleft)
+    trans = 1e-10
+    ts = @. thickness(trans, λ; Au...) |> u"nm"
+    plot!(ts, λ,
+          label = @sprintf("%.1e", trans),
+          c = :black,
+          lw = 2,
+          xlim = extrema(thicknesses),
+          ylim = extrema(λ))
+    mean_thick = mean(ts)
+    vline!([mean_thick],
+           c = :black,
+           ls = :dash,
+           label = round(u"nm", mean_thick, digits = 1))
 end
 
 # ╔═╡ 1bfd39a9-f3aa-41d6-b188-e45f1067cb5d
@@ -114,49 +109,41 @@ penetration_depth(700u"nm"; Cr...) |> u"nm"
 
 # ╔═╡ f4bf5b37-d983-451e-ae83-c0736365aeee
 let thicknesses, trans, ts, mean_trans, mean_thick
-	thicknesses = range(0, 120, length=101)u"nm"
-	heatmap(
-		thicknesses, λ, (t,l) -> log10(attenuation(t, l; Cr...)),
-		c=:viridis,
-		xlabel="thickness",
-		ylabel="λ",
-		title="Chromium (Cr)",
-		cbtitle="log10(transmission)",
-		xlim=extrema(thicknesses),
-		ylim=extrema(λ),
-		leg=:topleft
-	)
-	trans = 1e-3
-	ts = @. thickness(trans, λ; Cr...) |> u"nm"
-	plot!(
-		ts, λ,
-		label=@sprintf("%.1e", trans),
-		c=:black,
-		alpha=0.4,
-		lw=2,
-	)
-	mean_thick = mean(ts)
-	vline!([mean_thick],
-		c=:black,
-		alpha=0.4,
-		ls=:dash,
-		label=round(u"nm", mean_thick, digits=1)
-	)
-	
-	trans = 1e-10
-	ts = @. thickness(trans, λ; Cr...) |> u"nm"
-	plot!(
-		ts, λ,
-		label=@sprintf("%.1e", trans),
-		c=:black,
-		lw=2,
-	)
-	mean_thick = mean(ts)
-	vline!([mean_thick],
-		c=:black,
-		ls=:dash,
-		label=round(u"nm", mean_thick, digits=1)
-	)
+    thicknesses = range(0, 120, length = 101)u"nm"
+    heatmap(thicknesses, λ, (t, l) -> log10(attenuation(t, l; Cr...)),
+            c = :viridis,
+            xlabel = "thickness",
+            ylabel = "λ",
+            title = "Chromium (Cr)",
+            cbtitle = "log10(transmission)",
+            xlim = extrema(thicknesses),
+            ylim = extrema(λ),
+            leg = :topleft)
+    trans = 1e-3
+    ts = @. thickness(trans, λ; Cr...) |> u"nm"
+    plot!(ts, λ,
+          label = @sprintf("%.1e", trans),
+          c = :black,
+          alpha = 0.4,
+          lw = 2)
+    mean_thick = mean(ts)
+    vline!([mean_thick],
+           c = :black,
+           alpha = 0.4,
+           ls = :dash,
+           label = round(u"nm", mean_thick, digits = 1))
+
+    trans = 1e-10
+    ts = @. thickness(trans, λ; Cr...) |> u"nm"
+    plot!(ts, λ,
+          label = @sprintf("%.1e", trans),
+          c = :black,
+          lw = 2)
+    mean_thick = mean(ts)
+    vline!([mean_thick],
+           c = :black,
+           ls = :dash,
+           label = round(u"nm", mean_thick, digits = 1))
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

@@ -6,9 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ b487b43a-0785-11ec-37a0-d7a8c2311d96
 begin
-	using Markdown
-	using Unitful
-	using UnitfulAngles
+    using Markdown
+    using Unitful
+    using UnitfulAngles
 end
 
 # ╔═╡ c62c6afa-85c2-4699-a1c2-ee815680f359
@@ -27,7 +27,7 @@ clear_aperture = subaru_diameter * 0.95
 # ╔═╡ 82befe1c-06b8-4aff-af57-b54d204f6cda
 # measured from pupil images of aperture masks
 # which have known sizes
-effective_diameter =  3.886779904306219u"mm" * 2
+effective_diameter = 3.886779904306219u"mm" * 2
 
 # ╔═╡ 69ec058c-a65d-45da-b73a-7c93352775af
 focal_plane_coll_length = 200u"mm"
@@ -66,7 +66,9 @@ fpm_masks_angle = @. fpm_masks * target_wavelength / clear_aperture |> u"arcseco
 fpm_masks_radius = @. fpm_masks_angle / effective_plate_scale |> u"μm"
 
 # ╔═╡ 7b5be534-da03-45ba-a2c6-1f1b7fdbc917
-fpm_masks_angle_calculated = @. fpm_masks_radius / (clear_aperture * focal_plane_coll_length / (2 * 3.1644u"mm" / 0.9)) |> u"arcsecond" |> x -> x * 1e3
+fpm_masks_angle_calculated = @. fpm_masks_radius /
+                                (clear_aperture * focal_plane_coll_length /
+                                 (2 * 3.1644u"mm" / 0.9)) |> u"arcsecond" |> x -> x * 1e3
 
 # ╔═╡ c5a7185b-34f5-4aaa-87dc-f687c5785c47
 fpm_masks_diameter = 2 .* fpm_masks_radius
@@ -77,8 +79,8 @@ md"### Beam shift measurement"
 # ╔═╡ df4c6716-02ba-4131-ba7f-83cda9ea6688
 # https://www.edmundoptics.com/p/25mm-dia-3mm-thick-nir-i-coated-lambda10-fused-silica-window/27561/
 begin
-	n = 1.458
-	α = 5u"arcsecond"
+    n = 1.458
+    α = 5u"arcsecond"
 end;
 
 # ╔═╡ 779111b8-e4c9-4ba5-9d41-4b8829d9b29f

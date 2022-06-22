@@ -58,27 +58,25 @@ names = ["CLC-$i ($iwa mas)" for (i, iwa) in zip((2, 3, 5, 7), iwas)]
 psfm = rad2deg(750e-9 / 7.79) * 3600 .< radius .< 1.5
 m = @. ((iwas') * 1e-3) < radius < 1.5
 
-cycle = pro.Cycle("magma", 4, left=0.3, right=0.8)
+cycle = pro.Cycle("magma", 4, left = 0.3, right = 0.8)
 colors = collect(cycle)[end:-1:begin]
 
 @info "plotting"
-fig, axs = pro.subplots(refwidth="6.5in", refheight="3.5in")
-axs.plot(radius[psfm], curves[1][2][psfm], c="k", label="PSF")
+fig, axs = pro.subplots(refwidth = "6.5in", refheight = "3.5in")
+axs.plot(radius[psfm], curves[1][2][psfm], c = "k", label = "PSF")
 
 for (i, datum) in enumerate(curves)
-    axs.plot(radius[m[:, i]], datum[3][m[:, i]], c=colors[i]["color"], label=names[i])
-    axs.axvline(iwas[i:i] * 1e-3, c=colors[i]["color"], ls=":")
+    axs.plot(radius[m[:, i]], datum[3][m[:, i]], c = colors[i]["color"], label = names[i])
+    axs.axvline(iwas[i:i] * 1e-3, c = colors[i]["color"], ls = ":")
 end
 
-axs.legend(loc="best", ncols=1)
-axs.format(
-    xlabel="separation [\"]",
-    ylabel="raw 5\$\\sigma\$ contrast",
-    yscale="log",
-    yformatter="log",
-    xlim=(0, 1.5),
-    ylim=(nothing, 1)
-)
+axs.legend(loc = "best", ncols = 1)
+axs.format(xlabel = "separation [\"]",
+           ylabel = "raw 5\$\\sigma\$ contrast",
+           yscale = "log",
+           yformatter = "log",
+           xlim = (0, 1.5),
+           ylim = (nothing, 1))
 fname = figdir("simulated_curves.pdf")
 fig.savefig(fname)
 @info "done" filename=fname
