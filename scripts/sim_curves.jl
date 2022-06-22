@@ -53,7 +53,7 @@ curves = @showprogress map(noisemaps) do (psf_noise, occ_psf_noise)
     (radii, psf_contrast, occ_psf_contrast)
 end
 radius = curves[1][1] ./ 4 .* rad2deg(750e-9 / 7.79) * 3600;
-iwas = [37, 55, 91, 128]
+iwas = [36, 55, 92, 129]
 names = ["CLC-$i ($iwa mas)" for (i, iwa) in zip((2, 3, 5, 7), iwas)]
 psfm = rad2deg(750e-9 / 7.79) * 3600 .< radius .< 1.5
 m = @. ((iwas') * 1e-3) < radius < 1.5

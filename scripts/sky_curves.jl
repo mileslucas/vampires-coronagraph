@@ -112,14 +112,20 @@ masked_frames = map(centered_frames) do frame
     return out
 end
 
-noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(noise, img, fwhm),
-                                                       masked_frames)
+function robustnoise(image, position, fwhm)
+    pos = Tuple(position)
+    sep = Metrics.radial_distance(pos, Metrics.center(image))
+    fluxes = Metrics.get_aperture_fluxes(image, pos, sep, fwhm)
+    return BiweightStats.scale(fluxes; c = 6)
+end
 
+noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robustnoise, img,
+                                                                           fwhm), masked_frames)
 sigma = 5 # 5σ contrast curves
 curves = @showprogress "calculating contrast curves" map(noisemaps,
                                                          satresults) do noisemap, (phot, _)
     radii, curve = radial_profile(noisemap)
-    m = radii .> fwhm
+    m = @. fwhm < radii < 128 - fwhm/2
     # correct for small sample statistics
     sigma_corr = Metrics.correction_factor.(radii[m], fwhm, sigma)
     contrast = @. Metrics.calculate_contrast(sigma_corr, curve[m] / (phot * 10^(1.52)))
@@ -136,7 +142,7 @@ groups = [
 selected_curves = map(g -> argmin(c -> median(c[2]), curves[g]), groups)
 
 radius = selected_curves[1][1] .* 6.24e-3;
-iwas = [37, 55, 91, 128]
+iwas = [36, 55, 92, 129]
 names = ["CLC-$i ($iwa mas)" for (i, iwa) in zip((2, 3, 5, 7), iwas)]
 psfm = ustrip(u"arcsecond", 750u"nm" / 7.79u"m") .< radius .< 1.5
 m = @. ((iwas') * 1e-3) < radius < 1.5
@@ -154,7 +160,7 @@ for (i, datum) in enumerate(selected_curves[1:4])
 end
 
 # axs.fill_betweenx(0.2, 0.4, c="k", alpha=0.1)
-axs.axvline(49.4 * 6.24e-3, c = "k", alpha = 0.3, lw = 1, label = "Satellite spots")
+# axs.axvline(49.4 * 6.24e-3, c = "k", alpha = 0.3, lw = 1, label = "Satellite spots")
 
 axs.legend(loc = "best", ncols = 1)
 axs.format(xlabel = "separation [\"]",

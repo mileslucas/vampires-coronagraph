@@ -53,16 +53,9 @@ dark_frames = @showprogress "Making dark frames" map(dark_files) do filename
 end
 dark_frame_dict = Dict(dark_frames)
 
-noise_limit_vec = []
-for (key, frame) in dark_frame_dict
-    noise = BiweightStats.scale(frame; c = 6)
-    push!(noise_limit_vec, key => noise)
-end
-noise_limit_dict = Dict(noise_limit_vec)
-
 sci_files = glob("CLC-*_cam1.fits", datadir())
 push!(sci_files, datadir("Open_ag50nm-b2_750-50_EmptySlot2_0_cam1.fits"))
-calib_frames = @showprogress "Calibrating and collapsing" map(sci_files) do filename
+calib_frame_pairs = @showprogress "Calibrating and collapsing" map(sci_files) do filename
     hdu = FITS(filename)[1]
     key = (;
            gain = round(Int, read_key(hdu, "U_EMGAIN")[1]),
@@ -75,8 +68,10 @@ calib_frames = @showprogress "Calibrating and collapsing" map(sci_files) do file
         cal_frame = median(cal_cube, dims = 3)[:, :, 1]
         return reverse(cal_frame, dims = 2)
     end
-    return calib_frame
+    return key => calib_frame
 end
+calib_frame_keys = map(first, calib_frame_pairs)
+calib_frames = map(last, calib_frame_pairs)
 
 # FWHM is ~6 based on fitting
 fwhm = 6.36
@@ -128,16 +123,26 @@ function robustnoise(image, position, fwhm)
     return BiweightStats.scale(fluxes; c = 6)
 end
 
-noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robustnoise, img,
-                                                                           fwhm),
-                                                       masked_frames)
+noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robustnoise, img, fwhm), masked_frames)
 
 sigma = 5 # 5σ contrast curves
+
+# noise_floors = @showprogress "calculating noise floors" map(calib_frame_pairs, satresults) do (key, _), (phot, _)
+#     dark_frame = dark_frame_dict[key][:, :, 1]
+#     noisemap = detectionmap(robustnoise, dark_frame, fwhm)
+#     radii, curve = radial_profile(noisemap)
+#     m = @. fwhm < radii < 256 - fwhm/2
+#     r = radii[m]
+#     # correct for small sample statistics
+#     starphot = phot * 10^(1.52)
+#     contrast = @. Metrics.calculate_contrast(sigma, curve[m] / starphot)
+#     (r, contrast)
+# end
+
 curves = @showprogress "calculating contrast curves" map(noisemaps,
                                                          satresults) do frame, (phot, _)
-    com = map(ind -> center_of_mass(frame, CartesianIndices(ind)), inds)
     radii, curve = radial_profile(frame)
-    m = radii .> fwhm
+    m = @. fwhm < radii < 256
     # correct for small sample statistics
     sigma_corr = Metrics.correction_factor.(radii[m], fwhm, sigma)
     starphot = phot * 10^(1.52)
@@ -145,7 +150,7 @@ curves = @showprogress "calculating contrast curves" map(noisemaps,
     (radii[m], contrast)
 end
 radius = curves[1][1] .* 6.24e-3;
-iwas = [37, 55, 91, 128]
+iwas = [36, 55, 92, 129]
 names = ["CLC-$i ($iwa mas)" for (i, iwa) in zip((2, 3, 5, 7), iwas)]
 psfm = ustrip(u"arcsecond", 750u"nm" / 7.79u"m") .< radius .< 1.5
 m = @. ((iwas') * 1e-3) < radius < 1.5
