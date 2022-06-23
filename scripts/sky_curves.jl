@@ -1,12 +1,12 @@
-using PythonCall
 using ADI
-using NPZ
 using Glob
+using NPZ
+using Photometry
 using ProgressMeter
-using Unitful, UnitfulAngles
+using PythonCall
 using SatelliteSpots: get_cutout_inds, center_of_mass
 using Statistics
-using Photometry
+using Unitful, UnitfulAngles
 
 pro = pyimport("proplot")
 pro.rc["style"] = "ggplot"
@@ -56,7 +56,7 @@ dark_frame_dict = Dict(dark_frames)
 
 sci_files = glob("HIP56083*_cam1.fits", datadir())
 # push!(sci_files, datadir("Open_ag50nm-b2_750-50_EmptySlot2_0_cam1.fits"))
-calib_frames = @showprogress "Calibrating and collapsing" map(sci_files) do filename
+calib_frame_pairs = @showprogress "Calibrating and collapsing" map(sci_files) do filename
     hdu = FITS(filename)[1]
     key = (;
            gain = round(Int, read_key(hdu, "U_EMGAIN")[1]),
@@ -69,8 +69,9 @@ calib_frames = @showprogress "Calibrating and collapsing" map(sci_files) do file
         cal_frame = median(cal_cube, dims = 3)[:, :, 1]
         return reverse(cal_frame, dims = 2)
     end
-    return calib_frame
+    return key => calib_frame
 end
+calib_frames = map(last, calib_frame_pairs)
 
 # FWHM is ~6 based on fitting
 fwhm = 6.36
@@ -119,9 +120,28 @@ function robustnoise(image, position, fwhm)
     return BiweightStats.scale(fluxes; c = 6)
 end
 
-noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robustnoise, img,
-                                                                           fwhm), masked_frames)
+dark_frames_fix = @showprogress "debiasing dark frames" map(calib_frame_pairs, satresults) do (key, _), (phot, _)
+    dark_frame = dark_frame_dict[key][:, :, 1]
+    dark_frame = dark_frame .- median(dark_frame, dims=2)
+    dark_frame .-= median(dark_frame, dims=1)
+    dark_frame
+end
+
+noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robustnoise, img, fwhm), masked_frames)
+
 sigma = 5 # 5σ contrast curves
+
+noise_floors = @showprogress "calculating noise floors" map(dark_frames_fix, satresults) do dark_frame, (phot, _)
+    noisemap = detectionmap(robustnoise, dark_frame, fwhm)
+    radii, curve = radial_profile(noisemap)
+    m = @. fwhm < radii < 128 - fwhm/2
+    r = radii[m]
+    # correct for small sample statistics
+    starphot = phot * 10^(1.52)
+    contrast = @. Metrics.calculate_contrast(sigma, curve[m] / starphot)
+    return median(contrast)
+end
+noise_floor = median(noise_floors)
 curves = @showprogress "calculating contrast curves" map(noisemaps,
                                                          satresults) do noisemap, (phot, _)
     radii, curve = radial_profile(noisemap)
@@ -154,10 +174,11 @@ colors = collect(cycle)[end:-1:begin]
 fig, axs = pro.subplots(refwidth = "6.5in", refheight = "3.66in")
 # axs.plot(radius[psfm], selected_curves[5][2][psfm], c="k", label="PSF")
 
-for (i, datum) in enumerate(selected_curves[1:4])
+for (i, datum) in enumerate(selected_curves)
     axs.plot(radius[m[:, i]], datum[2][m[:, i]], c = colors[i]["color"], label = names[i])
     axs.axvline(iwas[i:i] * 1e-3, c = colors[i]["color"], ls = ":")
 end
+axs.axhline(noise_floor, c="#bd5073", alpha=0.7, ls="--", label="Noise floor")
 
 # axs.fill_betweenx(0.2, 0.4, c="k", alpha=0.1)
 # axs.axvline(49.4 * 6.24e-3, c = "k", alpha = 0.3, lw = 1, label = "Satellite spots")

@@ -127,20 +127,26 @@ noisemaps = @showprogress "calculating noise maps" map(img -> detectionmap(robus
 
 sigma = 5 # 5σ contrast curves
 
-# noise_floors = @showprogress "calculating noise floors" map(calib_frame_pairs, satresults) do (key, _), (phot, _)
-#     dark_frame = dark_frame_dict[key][:, :, 1]
-#     noisemap = detectionmap(robustnoise, dark_frame, fwhm)
-#     radii, curve = radial_profile(noisemap)
-#     m = @. fwhm < radii < 256 - fwhm/2
-#     r = radii[m]
-#     # correct for small sample statistics
-#     starphot = phot * 10^(1.52)
-#     contrast = @. Metrics.calculate_contrast(sigma, curve[m] / starphot)
-#     (r, contrast)
-# end
+dark_frames_fix = @showprogress "debiasing dark frames" map(calib_frame_pairs, satresults) do (key, _), (phot, _)
+    dark_frame = dark_frame_dict[key][:, :, 1]
+    dark_frame = dark_frame .- median(dark_frame, dims=2)
+    dark_frame .-= median(dark_frame, dims=1)
+    dark_frame
+end
 
-curves = @showprogress "calculating contrast curves" map(noisemaps,
-                                                         satresults) do frame, (phot, _)
+noise_floors = @showprogress "calculating noise floors" map(dark_frames_fix, satresults) do dark_frame, (phot, _)
+    noisemap = detectionmap(robustnoise, dark_frame, fwhm)
+    radii, curve = radial_profile(noisemap)
+    m = @. fwhm < radii < 256 - fwhm/2
+    r = radii[m]
+    # correct for small sample statistics
+    starphot = phot * 10^(1.52)
+    contrast = @. Metrics.calculate_contrast(sigma, curve[m] / starphot)
+    return median(contrast)
+end
+noise_floor_main = median(noise_floors[begin:end-1])
+
+curves = @showprogress "calculating contrast curves" map(noisemaps, satresults) do frame, (phot, _)
     radii, curve = radial_profile(frame)
     m = @. fwhm < radii < 256
     # correct for small sample statistics
@@ -166,7 +172,8 @@ for (i, datum) in enumerate(curves[1:4])
     axs.plot(radius[m[:, i]], datum[2][m[:, i]], c = colors[i]["color"], label = names[i])
     axs.axvline(iwas[i:i] * 1e-3, c = colors[i]["color"], ls = ":")
 end
-
+axs.axhline(noise_floors[end], c="k", alpha=0.4, ls="--", label="Noise floors")
+axs.axhline(noise_floor_main, c="#bd5073", alpha=0.7, ls="--")
 # axs.fill_betweenx(0.2, 0.4, c="k", alpha=0.1)
 # axs.axvline(49.4 * 6.24e-3, c="k", alpha=0.3, lw=1, label="Satellite spots")
 # axs.axvline(49.4 * 6.24e-3 * sqrt(2), c="k", alpha=0.3, lw=1, label="Satellite spots")
