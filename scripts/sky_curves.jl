@@ -185,7 +185,7 @@ axs.axhline(noise_floor, c="#bd5073", alpha=0.7, ls="--", label="Noise floor")
 
 axs.legend(loc = "best", ncols = 1)
 axs.format(xlabel = "separation [\"]",
-           ylabel = "raw 5\$\\sigma\$ contrast",
+           ylabel = "raw 5\$\\sigma\$ noise per annulus [contrast]",
            yscale = "log",
            yformatter = "log",
            xlim = (0, 0.75),
