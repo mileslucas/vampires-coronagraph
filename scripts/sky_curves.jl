@@ -178,7 +178,7 @@ for (i, datum) in enumerate(selected_curves)
     axs.plot(radius[m[:, i]], datum[2][m[:, i]], c = colors[i]["color"], label = names[i])
     axs.axvline(iwas[i:i] * 1e-3, c = colors[i]["color"], ls = ":")
 end
-axs.axhline(noise_floor, c="#bd5073", alpha=0.7, ls="--", label="Noise floor")
+axs.axhline(noise_floor, c="#bd5073", alpha=0.7, ls="--", label="noise floor")
 
 # axs.fill_betweenx(0.2, 0.4, c="k", alpha=0.1)
 # axs.axvline(49.4 * 6.24e-3, c = "k", alpha = 0.3, lw = 1, label = "Satellite spots")

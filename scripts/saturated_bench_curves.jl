@@ -147,7 +147,7 @@ end
 radius = curves[1][1] .* 6.24e-3;
 iwas = [36, 55, 92, 129]
 names = ["CLC-$i ($iwa mas)" for (i, iwa) in zip((2, 3, 5, 7), iwas)]
-psfm = 2 .* ustrip(u"arcsecond", 750u"nm" / 7.79u"m") .< radius .< 1.5
+psfm = 5.5 .* ustrip(u"arcsecond", 750u"nm" / 7.79u"m") .< radius .< 1.5
 m = @. ((iwas') * 1e-3) < radius < 1.5
 
 cycle = pro.Cycle("magma", 4, left = 0.3, right = 0.8)
@@ -161,7 +161,7 @@ for (i, datum) in enumerate(curves[1:4])
     axs.plot(radius[m[:, i]], datum[2][m[:, i]], c = colors[i]["color"], label = names[i])
     axs.axvline(iwas[i:i] * 1e-3, c = colors[i]["color"], ls = ":")
 end
-axs.axhline(noise_floor, c="k", alpha=0.4, ls="--", label="Noise floor")
+axs.axhline(noise_floor, c="k", alpha=0.4, ls="--", label="noise floor")
 
 
 axs.legend(loc = "best", ncols = 1)

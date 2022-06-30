@@ -50,6 +50,9 @@ curves = @showprogress map(noisemaps) do (psf_noise, occ_psf_noise)
     psf_contrast = @. Metrics.calculate_contrast(sigma_corr, psf_curve / starphot)
     occ_psf_contrast = @. Metrics.calculate_contrast(sigma_corr, occ_psf_curve / starphot)
 
+    # psf_contrast = @. sqrt(psf_contrast^2 + 2.86e-6^2)
+    # occ_psf_contrast = @. sqrt(occ_psf_contrast^2 + 2.86e-6^2)
+
     (radii, psf_contrast, occ_psf_contrast)
 end
 radius = curves[1][1] ./ 4 .* rad2deg(750e-9 / 7.79) * 3600;
