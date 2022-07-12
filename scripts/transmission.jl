@@ -78,18 +78,20 @@ centered_frames = @showprogress "centering frames" map(sci_files, calib_frames, 
 end
 
 # determine mask size
-fwhm = 6.36
-ap = CircularAperture(64.5, 64.5, 3)
-ann = CircularAnnulus(64.5, 64.5, 3, 4)
+ap = CircularAperture(64.5, 64.5, 4)
+ann = CircularAnnulus(64.5, 64.5, 5, 7)
 apsums = @showprogress "measuring photometry" map(centered_frames) do frame
     apsum = photometry(ap, frame).aperture_sum
     annsum = photometry(ann, frame).aperture_sum
     return apsum - annsum * sum(ap) / sum(ann)
 end
 
-# relative flux of unocculted data
-apsums[end] *= 10^(2.6243286403990362 - 0.7355975939297882)
+apsums_clean = vcat(
+    # remove CLC-2 data because it's way too small
+    apsums[2:4],
+    # relative flux of different ND filters
+    apsums[5] * 10^(2.6243286403990362 - 0.7355975939297882)
+)
+transmissions = log10.(apsums_clean[begin:end-1]) .- log10(apsums_clean[end])
 
-transmissions = log10.(apsums[1:4]) .- log10(apsums[end])
-
-med_trans = median(transmissions)
+trans_est = mean(transmissions)
