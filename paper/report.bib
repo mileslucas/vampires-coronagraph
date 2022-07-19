@@ -372,6 +372,33 @@
   file = {/Users/mileslucas/Zotero/storage/H5BB2J9B/Sahoo et al_2020_Precision Photometric and Astrometric Calibration Using Alternating Satellite.pdf}
 }
 
+@misc{skaf2021,
+  title = {High Contrast Imaging Wavefront Sensor Referencing from Coronagraphic Images},
+  author = {Skaf, Nour and Guyon, Olivier and Boccaletti, Anthony and Deo, Vincent and Vievard, Sebastien and Lozi, Julien and Ahn, Kyohoon and Norris, Barnaby and Currie, Thayne and Gendron, Eric and {Bertrou-Cantou}, Arielle and Ferreira, Florian and Sevin, Arnaud and Vidal, Fabrice},
+  year = {2021},
+  month = oct,
+  journal = {arXiv e-prints},
+  abstract = {A key challenge of high contrast imaging (HCI) is to differentiate a speckle from an exoplanet signal. The sources of speckles are a combination of atmospheric residuals and aberrations in the non-common path. Those non-common path aberrations (NCPA) are particularly challenging to compensate for as they are not directly measured, and because they include static, quasi-static and dynamic components. The proposed method directly addresses the challenge of compensating the NCPA. The algorithm DrWHO - Direct Reinforcement Wavefront Heuristic Optimisation - is a quasi-real-time compensation of static and dynamic NCPA for boosting image contrast. It is an image-based lucky imaging approach, aimed at finding and continuously updating the ideal reference of the wavefront sensor (WFS) that includes the NCPA, and updating this new reference to the WFS. Doing so changes the point of convergence of the AO loop. We show here the first results of a post-coronagraphic application of DrWHO. DrWHO does not rely on any model nor requires accurate wavefront sensor calibration, and is applicable to non-linear wavefront sensing situations. We present on-sky performances using a pyramid WFS sensor with the Subaru coronagraph extreme AO (SCExAO) instrument.},
+  keywords = {Astrophysics - Instrumentation and Methods for Astrophysics},
+  annotation = {ADS Bibcode: 2021arXiv211015361S},
+  file = {/Users/mileslucas/Zotero/storage/BGAG2KQV/Skaf et al. - 2021 - High contrast imaging wavefront sensor referencing.pdf}
+}
+
+@article{skaf2022,
+  title = {On-Sky Validation of Image-Based Adaptive Optics Wavefront Sensor Referencing},
+  author = {Skaf, Nour and Guyon, Olivier and Gendron, {\'E}ric and Ahn, Kyohoon and {Bertrou-Cantou}, Arielle and Boccaletti, Anthony and Cranney, Jesse and Currie, Thayne and Deo, Vincent and Edwards, Billy and Ferreira, Florian and Gratadour, Damien and Lozi, Julien and Norris, Barnaby and Sevin, Arnaud and Vidal, Fabrice and Vievard, S{\'e}bastien},
+  year = {2022},
+  month = mar,
+  journal = {Astronomy and Astrophysics},
+  volume = {659},
+  pages = {A170},
+  issn = {0004-6361},
+  doi = {10.1051/0004-6361/202141514},
+  abstract = {Context. Differentiating between a true exoplanet signal and residual speckle noise is a key challenge in high-contrast imaging (HCI). Speckles result from a combination of fast, slow, and static wavefront aberrations introduced by atmospheric turbulence and instrument optics. While wavefront control techniques developed over the last decade have shown promise in minimizing fast atmospheric residuals, slow and static aberrations such as non-common path aberrations (NCPAs) remain a key limiting factor for exoplanet detection. NCPAs are not seen by the wavefront sensor (WFS) of the adaptive optics (AO) loop, hence the difficulty in correcting them. {$<$}BR /{$>$} Aims: We propose to improve the identification and rejection of slow and static speckles in AO-corrected images. The algorithm known as the Direct Reinforcement Wavefront Heuristic Optimisation (DrWHO) performs a frequent compensation operation on static and quasi-static aberrations (including NCPAs) to boost image contrast. It is applicable to general-purpose AO systems as well as HCI systems. {$<$}BR /{$>$} Methods: By changing the WFS reference at every iteration of the algorithm (a few tens of seconds), DrWHO changes the AO system point of convergence to lead it towards a compensation mechanism for the static and slow aberrations. References are calculated using an iterative lucky-imaging approach, where each iteration updates the WFS reference, ultimately favoring high-quality focal plane images. {$<$}BR /{$>$} Results: We validated this concept through both numerical simulations and on-sky testing on the SCExAO instrument at the 8.2-m Subaru telescope. Simulations show a rapid convergence towards the correction of 82\% of the NCPAs. On-sky tests were performed over a 10 min run in the visible (750 nm). We introduced a flux concentration (FC) metric to quantify the point spread function (PSF) quality and measure a 15.7\% improvement compared to the pre-DrWHO image. {$<$}BR /{$>$} Conclusions: The DrWHO algorithm is a robust focal-plane wavefront sensing calibration method that has been successfully demonstrated on-sky. It does not rely on a model and does not require wavefront sensor calibration or linearity. It is compatible with different wavefront control methods, and can be further optimized for speed and efficiency. The algorithm is ready to be incorporated in scientific observations, enabling better PSF quality and stability during observations.},
+  langid = {english},
+  file = {/Users/mileslucas/Zotero/storage/IPBV6Q4P/Skaf et al. - 2022 - On-sky validation of image-based adaptive optics w.pdf;/Users/mileslucas/Zotero/storage/46UDLUJ5/abstract.html}
+}
+
 @article{traub2010,
   title = {Direct {{Imaging}} of {{Exoplanets}}},
   author = {Traub, W. A. and Oppenheimer, B. R.},
@@ -427,4 +454,35 @@
   file = {/Users/mileslucas/Zotero/storage/3GHZMFR6/Vievard et al. - 2020 - Focal plane wavefront sensing on SUBARUSCExAO.pdf;/Users/mileslucas/Zotero/storage/GGUVPTLQ/12.2562787.html}
 }
 
+@inproceedings{vievard2022,
+  title={Linearized Analytical Phase Diversity : towards lab and on-sky demonstration on the Subaru Telescope},
+  author={Vievard, S. and Bonnefois, A. and Cassaing, F. and Mugnier, L. and Sauvage, J.-F. and Guyon, O. and Lozi, J. and Deo, V. and Ahn, K. and Skaf, N.},
+  journal={Proceeding SPIE, SPIE Astronomical Telescopes + Instrumentation},
+  year={2022},
+  volume={12185},
+  number={31},
+  series={Adaptive Optics VII},
+  organization={SPIE}
+}
 
+@inproceedings{deo2022,
+  title={Controlling petals using fringes: wavefront sensing through sparse aperture interferomery at Subaru/SCExAO},
+  author={Deo, V. and Vievard, S. and Cvetojevic, N. and Ahn, K. and Huby, E. and Guyon, O. and Lacour, S. and Lozi, J. and Martinache, F. and Norris, B. and Skaf, N. and Tuthill, P.},
+  journal={Proceeding SPIE, SPIE Astronomical Telescopes + Instrumentation},
+  year={2022},
+  volume={12185},
+  number={34},
+  series={Adaptive Optics VII},
+  organization={SPIE}
+}
+
+@inproceedings{ahn2022,
+  title={Laboratory demonstration of EFC and spatial LDFC on Subaru/SCExAO},
+  author={K.~Ahn and O.~Guyon and J.~Lozi and S.~Vievard and V.~Deo and N.~Skaf and J.~Bragg and S.~Y.~Haffert and J.~R.~Males and T.~Currie},
+  journal={Proceeding SPIE, SPIE Astronomical Telescopes + Instrumentation},
+  year={2022},
+  volume={12185},
+  number={83},
+  series={Adaptive Optics VII},
+  organization={SPIE}
+}
