@@ -2,6 +2,7 @@ from pathlib import Path
 import numpy as np
 from astropy.io import fits
 import proplot as pro
+from matplotlib.patches import Circle
 
 pro.rc["font.size"] = 12
 pro.rc["legend.facecolor"] = "0.90"
@@ -55,7 +56,16 @@ fig, axes = pro.subplots(ncols=2, share=0, refwidth="3in", refheight="3in", abc=
 c = axes[0].imshow(bench_frame, norm="log")
 axes[0].colorbar(c, formatter="log")
 c = axes[1].imshow(sky_frame, norm="log")
+
 axes[1].colorbar(c, formatter="log")
+
+# add white cross in center
+[ax.scatter([122.5], [122.5], m="+", c="w", ms=50, lw=1) for ax in axes]
+# add white circle for mask size
+rad = 92 / 6.24
+for ax in axes:
+    circ = Circle([122.5, 122.5], rad, fill=False, ec="w")
+    ax.add_patch(circ)
 
 ticks = [f"{a:.1f}" for a in np.linspace(-113, 113, 5) * 6.24e-3]
 
